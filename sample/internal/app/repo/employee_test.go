@@ -68,7 +68,7 @@ func (s *EmployeeSuite) TestEmployeeRepo() {
 		EmployeeNumber: "222",
 		FirstName:      "Jane",
 		LastName:       "Doe",
-		BirthDate:      time.Date(1985, 1, 1, 0, 0, 0, 0, time.UTC),
+		BirthDate:      time.Date(1984, 1, 1, 0, 0, 0, 0, time.UTC),
 		Department:     deptHr,
 	}
 

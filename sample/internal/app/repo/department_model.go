@@ -30,10 +30,10 @@ func (d Department) toDomain() domain.Department {
 	}
 }
 
-func (d Departments) toDomain() []domain.Department {
+func (ds Departments) toDomain() []domain.Department {
 	var depts []domain.Department
-	for _, dept := range d {
-		depts = append(depts, dept.toDomain())
+	for _, d := range ds {
+		depts = append(depts, d.toDomain())
 	}
 	return depts
 }

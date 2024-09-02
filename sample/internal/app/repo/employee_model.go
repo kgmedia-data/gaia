@@ -17,6 +17,8 @@ type Employee struct {
 	Department     Department
 }
 
+type Employees []Employee
+
 func (e Employee) TableName() string {
 	return "employee"
 }
@@ -33,7 +35,7 @@ func NewEmployee(employee domain.Employee) Employee {
 	}
 }
 
-func toDomainEmployee(e Employee) domain.Employee {
+func (e Employee) toDomain() domain.Employee {
 	return domain.Employee{
 		Id:             e.Id,
 		EmployeeNumber: e.EmployeeNumber,
@@ -44,6 +46,10 @@ func toDomainEmployee(e Employee) domain.Employee {
 	}
 }
 
-func toDomainEmployees(employees []Employee) []domain.Employee {
-	return convertSlice(employees, toDomainEmployee)
+func (es Employees) toDomain() []domain.Employee {
+	var emps []domain.Employee
+	for _, e := range es {
+		emps = append(emps, e.toDomain())
+	}
+	return emps
 }

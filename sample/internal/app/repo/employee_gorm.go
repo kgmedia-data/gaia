@@ -28,13 +28,13 @@ func (r *EmployeeGormRepo) GetEmployee(id int) (domain.Employee, error) {
 		First(&employee, id).Error; err != nil {
 		return domain.Employee{}, r.error(err, "GetEmployee", id)
 	}
-	return toDomainEmployee(employee), nil
+	return employee.toDomain(), nil
 }
 
 func (r *EmployeeGormRepo) GetEmployees(offset, limit int, departmentId ...int) (
 	[]domain.Employee, error) {
 
-	employees := []Employee{}
+	var employees Employees
 
 	tx := r.GormDB.
 		Joins("Department").
@@ -49,7 +49,7 @@ func (r *EmployeeGormRepo) GetEmployees(offset, limit int, departmentId ...int) 
 	if err := tx.Find(&employees).Error; err != nil {
 		return []domain.Employee{}, r.error(err, "GetEmployees")
 	}
-	return toDomainEmployees(employees), nil
+	return employees.toDomain(), nil
 }
 
 func (r *EmployeeGormRepo) InsertEmployee(e domain.Employee) (domain.Employee, error) {
@@ -57,7 +57,7 @@ func (r *EmployeeGormRepo) InsertEmployee(e domain.Employee) (domain.Employee, e
 	if err := r.GormDB.Omit("Department").Create(&employee).Error; err != nil {
 		return domain.Employee{}, r.error(err, "InsertEmployee", employee)
 	}
-	return toDomainEmployee(employee), nil
+	return employee.toDomain(), nil
 }
 
 func (r *EmployeeGormRepo) UpdateEmployee(e domain.Employee) (domain.Employee, error) {
@@ -65,7 +65,7 @@ func (r *EmployeeGormRepo) UpdateEmployee(e domain.Employee) (domain.Employee, e
 	if err := r.GormDB.Omit("Department", "created_at").Save(&employee).Error; err != nil {
 		return domain.Employee{}, r.error(err, "UpdateEmployee", employee)
 	}
-	return toDomainEmployee(employee), nil
+	return employee.toDomain(), nil
 }
 
 func (r *EmployeeGormRepo) DeleteEmployee(id int) error {
