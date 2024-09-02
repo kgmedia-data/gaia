@@ -3,10 +3,12 @@ package domain
 import "time"
 
 type Employee struct {
-	Id        int
-	FirstName string
-	LastName  string
-	BirthDate time.Time
+	Id             int
+	EmployeeNumber string
+	FirstName      string
+	LastName       string
+	BirthDate      time.Time
+	Department     Department
 }
 
 func (e Employee) FullName() string {
@@ -18,5 +20,7 @@ func (e Employee) Age() int {
 }
 
 func (e Employee) IsValid() bool {
-	return e.Id > 0 && e.FirstName != "" && e.LastName != ""
+	return e.EmployeeNumber != "" &&
+		e.FirstName != "" &&
+		e.LastName != ""
 }

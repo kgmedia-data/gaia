@@ -3,7 +3,7 @@ package repo
 import (
 	"fmt"
 
-	"github.com/kgmedia-data/gaia/internal/app/domain"
+	"github.com/kgmedia-data/gaia/sample/internal/app/domain"
 )
 
 type EmployeeGormRepo struct {
@@ -22,15 +22,31 @@ func (r EmployeeGormRepo) error(err error, method string, params ...interface{})
 
 func (r *EmployeeGormRepo) GetEmployee(id int) (domain.Employee, error) {
 	employee := Employee{}
-	if err := r.GormDB.First(&employee, id).Error; err != nil {
+	if err := r.GormDB.
+		Joins("Department").
+		Where("employee.is_deleted = ?", false).
+		First(&employee, id).Error; err != nil {
 		return domain.Employee{}, r.error(err, "GetEmployee", id)
 	}
 	return toDomainEmployee(employee), nil
 }
 
-func (r *EmployeeGormRepo) GetEmployees() ([]domain.Employee, error) {
+func (r *EmployeeGormRepo) GetEmployees(offset, limit int, departmentId ...int) (
+	[]domain.Employee, error) {
+
 	employees := []Employee{}
-	if err := r.GormDB.Find(&employees).Error; err != nil {
+
+	tx := r.GormDB.
+		Joins("Department").
+		Where("employee.is_deleted = ?", false).
+		Offset(offset).
+		Limit(limit)
+
+	if len(departmentId) > 0 {
+		tx = tx.Where("employee.department_id in ?", departmentId)
+	}
+
+	if err := tx.Find(&employees).Error; err != nil {
 		return []domain.Employee{}, r.error(err, "GetEmployees")
 	}
 	return toDomainEmployees(employees), nil
@@ -38,7 +54,7 @@ func (r *EmployeeGormRepo) GetEmployees() ([]domain.Employee, error) {
 
 func (r *EmployeeGormRepo) InsertEmployee(e domain.Employee) (domain.Employee, error) {
 	employee := NewEmployee(e)
-	if err := r.GormDB.Create(&employee).Error; err != nil {
+	if err := r.GormDB.Omit("Department").Create(&employee).Error; err != nil {
 		return domain.Employee{}, r.error(err, "InsertEmployee", employee)
 	}
 	return toDomainEmployee(employee), nil
@@ -46,7 +62,7 @@ func (r *EmployeeGormRepo) InsertEmployee(e domain.Employee) (domain.Employee, e
 
 func (r *EmployeeGormRepo) UpdateEmployee(e domain.Employee) (domain.Employee, error) {
 	employee := NewEmployee(e)
-	if err := r.GormDB.Save(&employee).Error; err != nil {
+	if err := r.GormDB.Omit("Department", "created_at").Save(&employee).Error; err != nil {
 		return domain.Employee{}, r.error(err, "UpdateEmployee", employee)
 	}
 	return toDomainEmployee(employee), nil
