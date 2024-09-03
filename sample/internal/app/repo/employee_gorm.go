@@ -54,6 +54,7 @@ func (r *EmployeeGormRepo) GetEmployees(offset, limit int, departmentId ...int) 
 
 func (r *EmployeeGormRepo) InsertEmployee(e domain.Employee) (domain.Employee, error) {
 	employee := NewEmployee(e)
+
 	if err := r.GormDB.Omit("Department").Create(&employee).Error; err != nil {
 		return domain.Employee{}, r.error(err, "InsertEmployee", employee)
 	}

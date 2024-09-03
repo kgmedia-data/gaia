@@ -18,7 +18,7 @@ func NewDepartmentsDto(departments []domain.Department) []departmentDto {
 	return convertSlice(departments, NewDepartmentDto)
 }
 
-func toDomainDepartment(d departmentDto) domain.Department {
+func (d departmentDto) toDomain() domain.Department {
 	return domain.Department{
 		Id:   d.Id,
 		Name: d.Name,

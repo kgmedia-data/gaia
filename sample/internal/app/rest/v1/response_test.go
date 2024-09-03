@@ -87,7 +87,7 @@ func TestResponseDto_NewResponsesDto(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			resp := NewResponseDtos(tc.args.msg, tc.args.data, tc.args.key)
+			resp := NewResponsesDto(tc.args.msg, tc.args.data, tc.args.key)
 			respByte, err := json.Marshal(resp)
 			assert.NoError(t, err)
 			assert.JSONEq(t, tc.expected, string(respByte))

@@ -10,14 +10,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func requestTestHelper[T any](method string, data []T, queryParam string) (echo.Context,
+func requestTestHelper[T any](method string, data T, queryParam string) (echo.Context,
 	*httptest.ResponseRecorder) {
 
 	e := echo.New()
 	var req *http.Request
 	url := fmt.Sprintf("/%v", queryParam)
 
-	if data != nil {
+	if &data != nil {
 		jsonData, _ := json.Marshal(data)
 		req = httptest.NewRequest(method, url, bytes.NewReader(jsonData))
 	} else {

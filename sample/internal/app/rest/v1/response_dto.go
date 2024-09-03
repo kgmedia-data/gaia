@@ -12,7 +12,7 @@ type ResponseDto struct {
 	Version string                 `json:"version"`
 }
 
-type ResponseDtos[T any] struct {
+type ResponsesDto[T any] struct {
 	Message string         `json:"message"`
 	Data    map[string][]T `json:"data"`
 	Version string         `json:"version"`
@@ -34,20 +34,20 @@ func NewResponseDto(msg string, data interface{}, key string) ResponseDto {
 	return ResponseDto{Message: msg, Data: map[string]interface{}{key: map[string]interface{}{}}, Version: version}
 }
 
-func NewResponseDtos[T any](msg string, data []T, key string) ResponseDtos[T] {
+func NewResponsesDto[T any](msg string, data []T, key string) ResponsesDto[T] {
 	version, exist := os.LookupEnv("API_VERSION")
 	if !exist {
 		version = "-"
 	}
 
 	if len(data) > 0 {
-		return ResponseDtos[T]{
+		return ResponsesDto[T]{
 			Message: msg,
 			Data:    map[string][]T{key: data},
 			Version: version,
 		}
 	}
-	return ResponseDtos[T]{Message: msg, Data: map[string][]T{key: {}}, Version: version}
+	return ResponsesDto[T]{Message: msg, Data: map[string][]T{key: {}}, Version: version}
 }
 
 func unauthorizedResponse(c echo.Context) error {

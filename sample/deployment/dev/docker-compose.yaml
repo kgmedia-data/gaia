@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:14.12-alpine
+    image: postgres:13.7
     environment:
       - POSTGRES_USER=gaia
       - POSTGRES_PASSWORD=gaia123
