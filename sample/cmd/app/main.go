@@ -36,24 +36,42 @@ func main() {
 
 func appCmd() *cobra.Command {
 	var (
-		rest bool
+		rest           bool
+		employeeJob    bool
+		employeeStream bool
+		useMem         bool
 	)
 
 	appCmd := &cobra.Command{
 		Use:   "app",
 		Short: "Run the gaia application",
 		Run: func(cmd *cobra.Command, args []string) {
-			cfg, err := config.LoadConfig[config.Config](configPath)
-			if err != nil {
-				logrus.Fatalln(err)
-			}
-			app := app.NewApp(cfg)
 
 			registry := handler.NewRegistry()
-			registry.Register("METRIC", handler.NewMetricServer(cfg.Metric.Host))
 
-			if rest {
-				registry.Register("REST", app.CreateRestServer())
+			if useMem {
+				app := app.NewAppMem()
+				if rest {
+					registry.Register("REST", app.CreateRestServer())
+				}
+				if employeeStream {
+					registry.Register("EMPLOYEE-STREAM", app.CreateEmployeeStream())
+				}
+				if employeeJob {
+					job := app.CreateEmployeeJob()
+					job.Run()
+				}
+			} else {
+				cfg, err := config.LoadConfig[config.Config](configPath)
+				if err != nil {
+					logrus.Fatalln(err)
+				}
+				app := app.NewApp(cfg)
+
+				registry.Register("METRIC", handler.NewMetricServer(cfg.Metric.Host))
+				if rest {
+					registry.Register("REST", app.CreateRestServer())
+				}
 			}
 
 			registry.StartAll()
@@ -62,6 +80,9 @@ func appCmd() *cobra.Command {
 	}
 
 	appCmd.Flags().BoolVar(&rest, "rest", false, "enable REST API")
+	appCmd.Flags().BoolVar(&employeeJob, "employee-job", false, "enable employee job")
+	appCmd.Flags().BoolVar(&employeeStream, "employee-stream", false, "enable employee stream")
+	appCmd.Flags().BoolVar(&useMem, "use-mem", false, "use memory repository")
 
 	return appCmd
 }
