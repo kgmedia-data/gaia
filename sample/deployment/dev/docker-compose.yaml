@@ -1,0 +1,11 @@
+services:
+  postgres:
+    image: postgres:13.7
+    environment:
+      - POSTGRES_USER=gaia
+      - POSTGRES_PASSWORD=gaia123
+      - POSTGRES_DB=gaia
+      - PGTZ=Asia/Jakarta
+      - TZ=Asia/Jakarta
+    ports:
+      - 5432:5432

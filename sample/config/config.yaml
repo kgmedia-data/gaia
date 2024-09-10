@@ -1,0 +1,9 @@
+rest:
+  server:
+    host: ":8000"
+  db:
+    datastore: "postgres://gaia:gaia123@localhost:5432/gaia?sslmode=disable"
+    nConn: 3
+  secret: "12345"
+metric:
+  host: ":8081"

@@ -1,0 +1,9 @@
+rest:
+  server:
+    host: ":8080"
+  db:
+    datastore: "postgres://{{ GAIA_DB_USER }}:{{ GAIA_DB_PASSWORD }}@{{ GAIA_DB_HOST }}:{{ GAIA_DB_PORT }}/{{ GAIA_DB_NAME }}?sslmode=disable"
+    nConn: 3
+  secret: "{{ GAIA_JWT_SECRET }}"
+metric:
+  host: ":8081"
