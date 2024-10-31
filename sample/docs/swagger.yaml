@@ -1,0 +1,61 @@
+basePath: /v1
+definitions:
+  v1.ResponseDto:
+    properties:
+      data:
+        additionalProperties: true
+        type: object
+      message:
+        type: string
+      version:
+        type: string
+    type: object
+  v1.departmentDto:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+host: petstore.swagger.io
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample REST API Server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: GAIA Sample API
+  version: "1.0"
+paths:
+  /department:
+    post:
+      consumes:
+      - application/json
+      description: Create new department
+      parameters:
+      - description: Department data
+        in: body
+        name: department
+        required: true
+        schema:
+          $ref: '#/definitions/v1.departmentDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseDto'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.departmentDto'
+              type: object
+      summary: Create new department
+      tags:
+      - department
+swagger: "2.0"

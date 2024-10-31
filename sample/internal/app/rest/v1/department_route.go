@@ -37,6 +37,16 @@ func (r *DepartmentRoute) getDepartment(c echo.Context) error {
 	return c.JSON(200, resp)
 }
 
+// InsertDepartment godoc
+//
+//	@Summary		Create new department
+//	@Description	Create new department
+//	@Tags			department
+//	@Accept			json
+//	@Produce		json
+//	@Param			department	body		departmentDto	true	"Department data"
+//	@Success		200	{object}	ResponseDto{data=departmentDto}
+//	@Router			/department [post]
 func (r *DepartmentRoute) insertDepartment(c echo.Context) error {
 	var deptDto departmentDto
 	if err := c.Bind(&deptDto); err != nil {
