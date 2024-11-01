@@ -1,23 +1,54 @@
 basePath: /v1
 definitions:
-  v1.ResponseDto:
+  v1.DataDoc:
+    type: object
+  v1.ResponseDoc:
     properties:
       data:
-        additionalProperties: true
-        type: object
+        $ref: '#/definitions/v1.DataDoc'
       message:
         type: string
       version:
         type: string
     type: object
-  v1.departmentDto:
+  v1.departmentReqDto:
+    properties:
+      name:
+        type: string
+    type: object
+  v1.departmentRespDto:
     properties:
       id:
         type: integer
       name:
         type: string
     type: object
-host: petstore.swagger.io
+  v1.employeeReqDto:
+    properties:
+      birthDate:
+        type: string
+      employeeNumber:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+    type: object
+  v1.employeeRespDto:
+    properties:
+      birthDate:
+        example: "2006-01-02"
+        type: string
+      employeeNumber:
+        type: string
+      firstName:
+        type: string
+      id:
+        type: integer
+      lastName:
+        type: string
+    type: object
+host: localhost:8000
 info:
   contact:
     email: support@swagger.io
@@ -32,6 +63,39 @@ info:
   version: "1.0"
 paths:
   /department:
+    get:
+      description: Get all departments
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseDoc'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/v1.DataDoc'
+                  - properties:
+                      departments:
+                        items:
+                          $ref: '#/definitions/v1.departmentRespDto'
+                        type: array
+                    type: object
+              type: object
+      summary: Get all departments
+      tags:
+      - department
     post:
       consumes:
       - application/json
@@ -42,20 +106,295 @@ paths:
         name: department
         required: true
         schema:
-          $ref: '#/definitions/v1.departmentDto'
+          $ref: '#/definitions/v1.departmentReqDto'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Success
           schema:
             allOf:
-            - $ref: '#/definitions/v1.ResponseDto'
+            - $ref: '#/definitions/v1.ResponseDoc'
             - properties:
                 data:
-                  $ref: '#/definitions/v1.departmentDto'
+                  allOf:
+                  - $ref: '#/definitions/v1.DataDoc'
+                  - properties:
+                      department:
+                        $ref: '#/definitions/v1.departmentRespDto'
+                    type: object
               type: object
       summary: Create new department
       tags:
       - department
+  /department/{deptId}:
+    delete:
+      description: Delete department by id
+      parameters:
+      - description: Department ID
+        in: path
+        name: deptId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseDoc'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/v1.DataDoc'
+                  - properties:
+                      department:
+                        $ref: '#/definitions/v1.departmentRespDto'
+                    type: object
+              type: object
+      summary: Delete department by id
+      tags:
+      - department
+    get:
+      description: Get department by id
+      parameters:
+      - description: Department ID
+        in: path
+        name: deptId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseDoc'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/v1.DataDoc'
+                  - properties:
+                      department:
+                        $ref: '#/definitions/v1.departmentRespDto'
+                    type: object
+              type: object
+      summary: Get department by id
+      tags:
+      - department
+    put:
+      consumes:
+      - application/json
+      description: Update department by id
+      parameters:
+      - description: Department ID
+        in: path
+        name: deptId
+        required: true
+        type: integer
+      - description: Department data
+        in: body
+        name: department
+        required: true
+        schema:
+          $ref: '#/definitions/v1.departmentReqDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseDoc'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/v1.DataDoc'
+                  - properties:
+                      department:
+                        $ref: '#/definitions/v1.departmentRespDto'
+                    type: object
+              type: object
+      summary: Update department by id
+      tags:
+      - department
+  /department/{deptId}/employee:
+    get:
+      description: Get all employees
+      parameters:
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Department ID
+        in: path
+        name: deptId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseDoc'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/v1.DataDoc'
+                  - properties:
+                      employees:
+                        items:
+                          $ref: '#/definitions/v1.employeeRespDto'
+                        type: array
+                    type: object
+              type: object
+      summary: Get all employees
+      tags:
+      - employee
+    post:
+      consumes:
+      - application/json
+      description: Create new employee
+      parameters:
+      - description: Department ID
+        in: path
+        name: deptId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseDoc'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/v1.DataDoc'
+                  - properties:
+                      employee:
+                        $ref: '#/definitions/v1.employeeRespDto'
+                    type: object
+              type: object
+      summary: Create new employee
+      tags:
+      - employee
+  /department/{deptId}/employee/{employeeId}:
+    delete:
+      description: Delete employee by id
+      parameters:
+      - description: Department ID
+        in: path
+        name: deptId
+        required: true
+        type: integer
+      - description: Employee ID
+        in: path
+        name: employeeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseDoc'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/v1.DataDoc'
+                  - properties:
+                      employee:
+                        $ref: '#/definitions/v1.employeeRespDto'
+                    type: object
+              type: object
+      summary: Delete employee by id
+      tags:
+      - employee
+    get:
+      description: Get employee by id
+      parameters:
+      - description: Department ID
+        in: path
+        name: deptId
+        required: true
+        type: integer
+      - description: Employee ID
+        in: path
+        name: employeeId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseDoc'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/v1.DataDoc'
+                  - properties:
+                      employee:
+                        $ref: '#/definitions/v1.employeeRespDto'
+                    type: object
+              type: object
+      summary: Get employee by id
+      tags:
+      - employee
+    put:
+      consumes:
+      - application/json
+      description: Update employee by id
+      parameters:
+      - description: Department ID
+        in: path
+        name: deptId
+        required: true
+        type: integer
+      - description: Employee ID
+        in: path
+        name: employeeId
+        required: true
+        type: integer
+      - description: Employee data
+        in: body
+        name: employee
+        required: true
+        schema:
+          $ref: '#/definitions/v1.employeeReqDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.ResponseDoc'
+            - properties:
+                data:
+                  allOf:
+                  - $ref: '#/definitions/v1.DataDoc'
+                  - properties:
+                      employee:
+                        $ref: '#/definitions/v1.employeeRespDto'
+                    type: object
+              type: object
+      summary: Update employee by id
+      tags:
+      - employee
 swagger: "2.0"

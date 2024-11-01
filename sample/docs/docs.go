@@ -25,6 +25,65 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/department": {
+            "get": {
+                "description": "Get all departments",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "department"
+                ],
+                "summary": "Get all departments",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseDoc"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/v1.DataDoc"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "departments": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/v1.departmentRespDto"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create new department",
                 "consumes": [
@@ -44,23 +103,512 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.departmentDto"
+                            "$ref": "#/definitions/v1.departmentReqDto"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success",
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/v1.ResponseDto"
+                                    "$ref": "#/definitions/v1.ResponseDoc"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/v1.departmentDto"
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/v1.DataDoc"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "department": {
+                                                            "$ref": "#/definitions/v1.departmentRespDto"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/department/{deptId}": {
+            "get": {
+                "description": "Get department by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "department"
+                ],
+                "summary": "Get department by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "deptId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseDoc"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/v1.DataDoc"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "department": {
+                                                            "$ref": "#/definitions/v1.departmentRespDto"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update department by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "department"
+                ],
+                "summary": "Update department by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "deptId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Department data",
+                        "name": "department",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.departmentReqDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseDoc"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/v1.DataDoc"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "department": {
+                                                            "$ref": "#/definitions/v1.departmentRespDto"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete department by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "department"
+                ],
+                "summary": "Delete department by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "deptId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseDoc"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/v1.DataDoc"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "department": {
+                                                            "$ref": "#/definitions/v1.departmentRespDto"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/department/{deptId}/employee": {
+            "get": {
+                "description": "Get all employees",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employee"
+                ],
+                "summary": "Get all employees",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "deptId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseDoc"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/v1.DataDoc"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "employees": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "$ref": "#/definitions/v1.employeeRespDto"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create new employee",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employee"
+                ],
+                "summary": "Create new employee",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "deptId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseDoc"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/v1.DataDoc"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "employee": {
+                                                            "$ref": "#/definitions/v1.employeeRespDto"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/department/{deptId}/employee/{employeeId}": {
+            "get": {
+                "description": "Get employee by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employee"
+                ],
+                "summary": "Get employee by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "deptId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "employeeId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseDoc"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/v1.DataDoc"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "employee": {
+                                                            "$ref": "#/definitions/v1.employeeRespDto"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update employee by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employee"
+                ],
+                "summary": "Update employee by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "deptId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "employeeId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Employee data",
+                        "name": "employee",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/v1.employeeReqDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseDoc"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/v1.DataDoc"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "employee": {
+                                                            "$ref": "#/definitions/v1.employeeRespDto"
+                                                        }
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete employee by id",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "employee"
+                ],
+                "summary": "Delete employee by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Department ID",
+                        "name": "deptId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Employee ID",
+                        "name": "employeeId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/v1.ResponseDoc"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/definitions/v1.DataDoc"
+                                                },
+                                                {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "employee": {
+                                                            "$ref": "#/definitions/v1.employeeRespDto"
+                                                        }
+                                                    }
+                                                }
+                                            ]
                                         }
                                     }
                                 }
@@ -72,12 +620,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "v1.ResponseDto": {
+        "v1.DataDoc": {
+            "type": "object"
+        },
+        "v1.ResponseDoc": {
             "type": "object",
             "properties": {
                 "data": {
-                    "type": "object",
-                    "additionalProperties": true
+                    "$ref": "#/definitions/v1.DataDoc"
                 },
                 "message": {
                     "type": "string"
@@ -87,13 +637,59 @@ const docTemplate = `{
                 }
             }
         },
-        "v1.departmentDto": {
+        "v1.departmentReqDto": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.departmentRespDto": {
             "type": "object",
             "properties": {
                 "id": {
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.employeeReqDto": {
+            "type": "object",
+            "properties": {
+                "birthDate": {
+                    "type": "string"
+                },
+                "employeeNumber": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.employeeRespDto": {
+            "type": "object",
+            "properties": {
+                "birthDate": {
+                    "type": "string",
+                    "example": "2006-01-02"
+                },
+                "employeeNumber": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastName": {
                     "type": "string"
                 }
             }
@@ -104,7 +700,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "petstore.swagger.io",
+	Host:             "localhost:8000",
 	BasePath:         "/v1",
 	Schemes:          []string{},
 	Title:            "GAIA Sample API",
