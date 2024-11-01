@@ -7,3 +7,6 @@ migrate:
 gen-mocks:
 	mkdir -p internal/mocks && \
 	touch internal/mocks/a.txt && rm internal/mocks/* && mockery --dir internal --output internal/mocks --all
+
+swagger:
+	swag init -g rest.go -d internal/app/rest
