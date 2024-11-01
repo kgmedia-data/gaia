@@ -6,10 +6,22 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// ResponseDto is a struct to represent response data in Swagger.
+// only used for documentation purpose
 type ResponseDto struct {
 	Message string                 `json:"message"`
 	Data    map[string]interface{} `json:"data"`
 	Version string                 `json:"version"`
+}
+
+// DataDoc is a struct to represent data in Swagger
+// only used for documentation purpose
+type DataDoc struct{}
+
+type ResponseDoc struct {
+	Message string  `json:"message"`
+	Data    DataDoc `json:"data"`
+	Version string  `json:"version"`
 }
 
 type ResponsesDto[T any] struct {

@@ -167,7 +167,7 @@ func TestDepartmentRoute_GetDepartments(t *testing.T) {
 func TestDepartmentRoute_InsertDepartment(t *testing.T) {
 	type (
 		args struct {
-			deptDto departmentDto
+			deptDto departmentRespDto
 		}
 	)
 
@@ -181,7 +181,7 @@ func TestDepartmentRoute_InsertDepartment(t *testing.T) {
 		{
 			desc: "success insert department",
 			args: args{
-				deptDto: departmentDto{Name: "IT"},
+				deptDto: departmentRespDto{Name: "IT"},
 			},
 			mockFunc: func(args args, deptSvc *mocks.IDepartmentService) {
 				dept := domain.Department{Id: 0, Name: args.deptDto.Name}
@@ -193,7 +193,7 @@ func TestDepartmentRoute_InsertDepartment(t *testing.T) {
 		}, {
 			desc: "failed insert department",
 			args: args{
-				deptDto: departmentDto{Name: "IT"},
+				deptDto: departmentRespDto{Name: "IT"},
 			},
 			mockFunc: func(args args, deptSvc *mocks.IDepartmentService) {
 				dept := domain.Department{Id: 0, Name: args.deptDto.Name}
@@ -227,7 +227,7 @@ func TestDepartmentRoute_UpdateDepartment(t *testing.T) {
 	type (
 		args struct {
 			id      int
-			deptDto departmentDto
+			deptDto departmentRespDto
 		}
 	)
 
@@ -242,7 +242,7 @@ func TestDepartmentRoute_UpdateDepartment(t *testing.T) {
 			desc: "success update department",
 			args: args{
 				id:      1,
-				deptDto: departmentDto{Name: "IT"},
+				deptDto: departmentRespDto{Name: "IT"},
 			},
 			mockFunc: func(args args, deptSvc *mocks.IDepartmentService) {
 				dept := domain.Department{Id: args.id, Name: args.deptDto.Name}
@@ -255,7 +255,7 @@ func TestDepartmentRoute_UpdateDepartment(t *testing.T) {
 			desc: "failed update department",
 			args: args{
 				id:      1,
-				deptDto: departmentDto{Name: "IT"},
+				deptDto: departmentRespDto{Name: "IT"},
 			},
 			mockFunc: func(args args, deptSvc *mocks.IDepartmentService) {
 				dept := domain.Department{Id: args.id, Name: args.deptDto.Name}
