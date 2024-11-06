@@ -1,0 +1,58 @@
+{
+	"title": "Summarization for Reporting",
+	"description": "",
+	"parameters": {
+		"groundingPromptConfig": {
+			"disabled": true,
+			"groundingConfig": {
+				"sources": [
+					{
+						"type": "WEB"
+					}
+				]
+			}
+		},
+		"stopSequences": [],
+		"temperature": 1,
+		"tokenLimits": 8192,
+		"topP": 1,
+		"topK": 1,
+		"candidateCount": 1,
+		"maxOutputTokens": 8192,
+		"responseMimeType": "application/json",
+		"responseSchema": {
+			"type": "ARRAY",
+			"items": {
+				"type": "OBJECT",
+				"properties": {
+					"topic_id": {"type": "STRING"},
+					"publisher": {"type": "STRING"},
+					"summary": {"type": "STRING"}
+				}
+			}
+		}
+	},
+	"systemInstruction": {
+		"parts": [
+			{
+				"text": "You are a tools for summarization of title of news articles."
+			}
+		]
+	},
+	"inputPrefixes": [
+		"Create a summary of given indonesian news article title. Ignore the html tag and unrelated characters. The summary should be grouped by the group_id and return summary of content in one paragraph only, and SHOULD contain only between 2 and 4 sentences, for each topic. Write the summarization in Indonesian. \nHere are the input: group-id: 12, content 1: <input article>"
+	],
+	"outputPrefixes": [
+		"[{\"summary\": \"Bursa Efek Indonesia (BEI) kembali memasukkan saham perusahaan teknologi PT GoTo Gojek Tokopedia Tbk (GOTO) dalam daftar 45 saham yang bisa diperdagangkan melalui sesi pra-pembukaan (pre-opening) di Pasar Reguler. Daftar saham tersebut dirilis dengan merujuk pada Peraturan Nomor II-A tentang Perdagangan Efek Bersifat Ekuitas dan berdasarkan hasil evaluasi atas daftar saham yang digunakan dalam penghitungan Indeks LQ45. BEI juga memasukkan dua saham baru yang bisa diperdagangkan di sesi pra-pembukaan yakni Adaro Minerals (ADMR) dan Summarecon Agung (SMRA), untuk menggantikan Gudang Garam (GGRM) dan Harum Energy (HRUM).\", \"group_id\": \"12\"}]"
+	],
+	"examples": [],
+	"type": "freeform",
+	"prompt": {
+		"parts": [
+			{
+				"text": ""
+			}
+		]
+	},
+	"model": "gemini-1.5-flash-002"
+}
