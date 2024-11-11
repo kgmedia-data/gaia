@@ -1,13 +1,14 @@
 package ml
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
-	"os/exec"
-	"strings"
 
 	"github.com/go-resty/resty/v2"
+	"golang.org/x/oauth2/google"
 )
 
 type VertexRestModel struct {
@@ -16,13 +17,33 @@ type VertexRestModel struct {
 }
 
 func getAccessToken() (string, error) {
-	cmd := exec.Command("gcloud", "auth", "print-access-token", "--quiet")
-	output, err := cmd.Output()
+	ctx := context.Background()
+	// read file into array of bytes
+	filename := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+	file, err := os.Open(filename)
 	if err != nil {
 		return "", err
 	}
-	token := strings.TrimSpace(string(output))
-	return token, nil
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+
+	creds, err := google.CredentialsFromJSON(ctx, []byte(data),
+		"https://www.googleapis.com/auth/cloud-platform")
+	if err != nil {
+		return "", err
+	}
+
+	token, err := creds.TokenSource.Token()
+	if err != nil {
+		return "", err
+	}
+
+	return token.AccessToken, nil
+
 }
 
 func loadConfigVertex(filename string) (*VertexAIConfig, error) {
