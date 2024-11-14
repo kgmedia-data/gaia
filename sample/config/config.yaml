@@ -7,3 +7,9 @@ rest:
   secret: "12345"
 metric:
   host: ":8081"
+gcpLog:
+  projectId: "kgdata-aiml"
+  logName: "gaia"
+  labels:
+    project: "gaia"
+    env: "development"
