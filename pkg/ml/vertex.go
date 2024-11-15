@@ -127,17 +127,22 @@ func (s *VertexRestModel) SetResponseSchema(schema map[string]interface{}) *Vert
 	return s
 }
 
-func (s *VertexRestModel) SetSystemInstruction(instruction string) *VertexRestModel {
+func (s *VertexRestModel) AddSystemInstruction(instruction string) *VertexRestModel {
 	s.config.SystemInstruction.Parts = append(s.config.SystemInstruction.Parts, InstructionPart{Text: instruction})
 	return s
 }
 
-func (s *VertexRestModel) SetContent(prompt string) *VertexRestModel {
+func (s *VertexRestModel) AddContent(prompt string) *VertexRestModel {
 	s.config.Contents.Parts = append(s.config.Contents.Parts, InstructionPart{Text: prompt})
 	return s
 }
 
-func (s *VertexRestModel) SetLabels(labels map[string]string) *VertexRestModel {
+func (s *VertexRestModel) SetContent(prompt string) *VertexRestModel {
+	s.config.Contents.Parts = []InstructionPart{{Text: prompt}}
+	return s
+}
+
+func (s *VertexRestModel) AddLabels(labels map[string]string) *VertexRestModel {
 	for k, v := range labels {
 		s.config.Labels[k] = v
 	}
@@ -153,5 +158,10 @@ func (s *VertexRestModel) SetSafetySettings(safetySettings map[string]string) *V
 			}
 		}
 	}
+	return s
+}
+
+func (s *VertexRestModel) AddTools(tools []Tools) *VertexRestModel {
+	s.config.Tools = append(s.config.Tools, tools...)
 	return s
 }

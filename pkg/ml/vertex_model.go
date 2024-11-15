@@ -13,6 +13,7 @@ type VertexAIConfig struct {
 	Contents          Contents          `json:"contents"`
 	Labels            map[string]string `json:"labels"`
 	SafetySettings    []SafetySettings  `json:"safetySettings,omitempty"`
+	Tools             []Tools           `json:"tools"`
 }
 
 type GenerationConfig struct {
@@ -41,6 +42,14 @@ type InstructionPart struct {
 type SafetySettings struct {
 	Category  string `json:"category"`
 	Threshold string `json:"threshold"`
+}
+
+type Tools struct {
+	Retrieval struct {
+		VertexAiSearch struct {
+			Datastore string `json:"datastore"`
+		} `json:"vertexAiSearch"`
+	} `json:"retrieval"`
 }
 
 // Vertex AI Output

@@ -16,7 +16,7 @@ func NewSummaryVertexRest(projectID, location string, vertex *VertexRestModel) (
 	vertex.SetModel("gemini-1.5-flash-002").
 		SetTemperature(1).
 		SetMaxOutputTokens(8192).
-		SetSystemInstruction("You are a tools for summarization of title of news articles.").
+		AddSystemInstruction("You are a tools for summarization of title of news articles.").
 		SetResponseSchema(map[string]interface{}{
 			"type": "array",
 			"items": map[string]interface{}{
@@ -32,7 +32,7 @@ func NewSummaryVertexRest(projectID, location string, vertex *VertexRestModel) (
 				"required": []string{"content", "group_id"},
 			},
 		}).
-		SetLabels(map[string]string{
+		AddLabels(map[string]string{
 			"project": "medeab",
 			"env":     "prod",
 			"task":    "summarization",
