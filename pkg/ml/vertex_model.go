@@ -7,32 +7,30 @@ type Summary struct {
 
 // Vertex AI Config
 type VertexAIConfig struct {
-	Model             string            `json:"model"`
-	Title             string            `json:"title"`
-	Description       string            `json:"description"`
-	Parameters        Parameters        `json:"parameters"`
-	SystemInstruction SystemInstruction `json:"systemInstruction"`
-	Prompt            Prompt            `json:"prompt"`
-	InputPrefixes     []string          `json:"inputPrefixes"`
-	OutputPrefixes    []string          `json:"outputPrefixes"`
+	Model             string                 `json:"model"`
+	GenerationConfig  GenerationConfig       `json:"generation_config"`
+	SystemInstruction SystemInstruction      `json:"systemInstruction"`
+	Contents          Contents               `json:"contents"`
+	Labels            map[string]string      `json:"labels"`
+	SafetySettings    map[string]interface{} `json:"safety_settings"`
 }
 
-type Parameters struct {
-	StopSequences    []string `json:"stopSequences"`
-	Temperature      float64  `json:"temperature"`
-	TokenLimits      int      `json:"tokenLimits"`
-	TopP             int      `json:"topP"`
-	TopK             int      `json:"topK"`
-	CandidateCount   int      `json:"candidateCount"`
-	MaxOutputTokens  int      `json:"maxOutputTokens"`
-	ResponseMimeType string   `json:"responseMimeType"`
+type GenerationConfig struct {
+	Temperature      float64                `json:"temperature"`
+	TopP             int                    `json:"topP"`
+	TopK             int                    `json:"topK"`
+	CandidateCount   int                    `json:"candidateCount"`
+	MaxOutputTokens  int                    `json:"maxOutputTokens"`
+	ResponseMimeType string                 `json:"responseMimeType"`
+	ResponseSchema   map[string]interface{} `json:"responseSchema"`
 }
 
 type SystemInstruction struct {
 	Parts []InstructionPart `json:"parts"`
 }
 
-type Prompt struct {
+type Contents struct {
+	Role  string            `json:"role"`
 	Parts []InstructionPart `json:"parts"`
 }
 

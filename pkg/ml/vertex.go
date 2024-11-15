@@ -2,7 +2,6 @@ package ml
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -46,36 +45,95 @@ func getAccessToken() (string, error) {
 
 }
 
-func loadConfigVertex(filename string) (*VertexAIConfig, error) {
-	data, err := os.ReadFile(filename)
-	if err != nil {
-		return nil, err
-	}
-	var config VertexAIConfig
-	err = json.Unmarshal(data, &config)
-	if err != nil {
-		return nil, err
-	}
-	return &config, nil
-}
+func NewVertexRestModel() (*VertexRestModel, error) {
 
-func NewVertexRestModel(configDir string) (*VertexRestModel, error) {
-	client := resty.New()
 	token, err := getAccessToken()
 	if err != nil {
 		return nil, err
 	}
+
+	client := resty.New()
 	request := client.NewRequest()
 	request.SetHeader("Content-Type", "application/json")
 	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
-	config, err := loadConfigVertex(configDir)
-	if err != nil {
-		return &VertexRestModel{}, err
-	}
-
 	return &VertexRestModel{
 		request: request,
-		config:  *config,
+		config:  *GenerateVertexDefaultConfig(),
 	}, nil
+}
+
+func GenerateVertexDefaultConfig() *VertexAIConfig {
+	config := VertexAIConfig{
+		Model: "gemini-1.5-flash-002",
+		GenerationConfig: GenerationConfig{
+			Temperature:      1,
+			TopP:             1,
+			TopK:             1,
+			CandidateCount:   1,
+			MaxOutputTokens:  1024,
+			ResponseMimeType: "application/json",
+		},
+		SystemInstruction: SystemInstruction{},
+		Contents: Contents{
+			Role: "MODEL",
+		},
+		Labels: map[string]string{},
+		SafetySettings: map[string]interface{}{
+			"category":  "HARM_CATEGORY_HATE_SPEECH",
+			"threshold": "BLOCK_ONLY_HIGH",
+			"method":    "SEVERITY",
+		},
+	}
+
+	return &config
+}
+
+func (s *VertexRestModel) SetModel(model string) *VertexRestModel {
+	s.config.Model = model
+	return s
+}
+
+func (s *VertexRestModel) SetTemperature(temp float64) *VertexRestModel {
+	s.config.GenerationConfig.Temperature = temp
+	return s
+}
+
+func (s *VertexRestModel) SetTopP(topP int) *VertexRestModel {
+	s.config.GenerationConfig.TopP = topP
+	return s
+}
+
+func (s *VertexRestModel) SetMaxOutputTokens(maxOutputTokens int) *VertexRestModel {
+	s.config.GenerationConfig.MaxOutputTokens = maxOutputTokens
+	return s
+}
+
+func (s *VertexRestModel) SetResponseSchema(schema map[string]interface{}) *VertexRestModel {
+	s.config.GenerationConfig.ResponseSchema = schema
+	return s
+}
+
+func (s *VertexRestModel) SetSystemInstruction(instruction string) *VertexRestModel {
+	s.config.SystemInstruction.Parts = append(s.config.SystemInstruction.Parts, InstructionPart{Text: instruction})
+	return s
+}
+
+func (s *VertexRestModel) SetContent(prompt string) *VertexRestModel {
+	s.config.Contents.Parts = append(s.config.Contents.Parts, InstructionPart{Text: prompt})
+	return s
+}
+
+func (s *VertexRestModel) SetLabels(labels map[string]string) *VertexRestModel {
+	for k, v := range labels {
+		s.config.Labels[k] = v
+	}
+	return s
+}
+
+func (s *VertexRestModel) SetSafetySettings(safetySettings map[string]interface{}) *VertexRestModel {
+	for k, v := range safetySettings {
+		s.config.SafetySettings[k] = v
+	}
+	return s
 }

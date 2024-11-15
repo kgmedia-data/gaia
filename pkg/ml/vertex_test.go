@@ -24,13 +24,13 @@ func TestInferSummaryRestVertex(t *testing.T) {
 	}
 	projectID := "kgdata-aiml"
 	location := "asia-southeast1"
-	configDir := "config/config_summary.json"
 
-	vertex, err := NewVertexRestModel(configDir)
+	vertex, err := NewVertexRestModel()
 	assert.NoError(t, err)
 
 	model, err := NewSummaryVertexRest(projectID, location, vertex)
 	assert.NoError(t, err)
+	fmt.Printf("model vertex config: %+v\n", model.vertex.config)
 
 	resp, err := model.BatchSummarize("English", 2, 6, input)
 	fmt.Println("resp", resp)

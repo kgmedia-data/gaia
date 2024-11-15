@@ -13,6 +13,31 @@ type SummaryVertexRest struct {
 
 func NewSummaryVertexRest(projectID, location string, vertex *VertexRestModel) (*SummaryVertexRest, error) {
 
+	vertex.SetModel("gemini-1.5-flash-002").
+		SetTemperature(1).
+		SetMaxOutputTokens(8192).
+		SetSystemInstruction("You are a tools for summarization of title of news articles.").
+		SetResponseSchema(map[string]interface{}{
+			"type": "array",
+			"items": map[string]interface{}{
+				"type": "object",
+				"properties": map[string]interface{}{
+					"group_id": map[string]interface{}{
+						"type": "string",
+					},
+					"content": map[string]interface{}{
+						"type": "string",
+					},
+				},
+				"required": []string{"content", "group_id"},
+			},
+		}).
+		SetLabels(map[string]string{
+			"project": "medeab",
+			"env":     "prod",
+			"task":    "summarization",
+		})
+
 	endpoint := fmt.Sprintf("https://%s-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/google/models/%s:generateContent", location, projectID, location, vertex.config.Model)
 
 	return &SummaryVertexRest{
@@ -26,83 +51,33 @@ func (s SummaryVertexRest) error(err error, method string, params ...interface{}
 }
 
 func (s *SummaryVertexRest) BatchSummarize(language string, minSentences, maxSentences int, input []Summary) ([]Summary, error) {
-	SYSTEM_INSTRUCTION := "You are a tools for summarization of title of news articles."
 
 	contents_text := s.generateContentsText(language, minSentences, maxSentences, input)
+	s.vertex.SetContent(contents_text)
 
-	requestBody, err := json.Marshal(map[string]interface{}{
-		"generation_config": map[string]interface{}{
-			"temperature":      s.vertex.config.Parameters.Temperature,
-			"topP":             s.vertex.config.Parameters.TopP,
-			"topK":             s.vertex.config.Parameters.TopK,
-			"candidateCount":   s.vertex.config.Parameters.CandidateCount,
-			"maxOutputTokens":  s.vertex.config.Parameters.MaxOutputTokens,
-			"responseMimeType": "application/json",
-			"responseSchema": map[string]interface{}{
-				"type": "array",
-				"items": map[string]interface{}{
-					"type": "object",
-					"properties": map[string]interface{}{
-						"group_id": map[string]interface{}{
-							"type": "string",
-						},
-						"content": map[string]interface{}{
-							"type": "string",
-						},
-					},
-					"required": []string{"content", "group_id"},
-				},
-			},
-		},
-		"system_instruction": map[string]interface{}{
-			"parts": []map[string]string{
-				{
-					"text": SYSTEM_INSTRUCTION,
-				},
-			},
-		},
-		"contents": map[string]interface{}{
-			"role": "MODEL",
-			"parts": map[string]string{
-				"text": contents_text,
-			},
-		},
-		"labels": map[string]string{
-			"project": "medeab",
-			"env":     "prod",
-			"task":    "summarization",
-		},
-		"safety_settings": map[string]interface{}{
-			"category":  "HARM_CATEGORY_HATE_SPEECH",
-			"threshold": "BLOCK_ONLY_HIGH",
-			"method":    "SEVERITY",
-		},
-	})
+	resp, err := s.vertex.request.
+		SetBody(s.vertex.config).
+		Post(s.endpoint)
 	if err != nil {
-		return nil, s.error(err, "BatchSummarize")
-	}
-
-	resp, err := s.vertex.request.SetBody(requestBody).Post(s.endpoint)
-	if err != nil {
-		return nil, s.error(err, "BatchSummarize", requestBody)
+		return nil, s.error(err, "BatchSummarize", s.vertex.config)
 	}
 
 	if resp.StatusCode() != http.StatusOK {
-		return nil, fmt.Errorf("failed to get summary: status %s", resp.Status())
+		return nil, fmt.Errorf("failed to get summary: status %s, response: %s", resp.Status(), resp.Body())
 	}
 
 	// Parse Response Body to JSON
 	result := OutputVertex{}
 	err = json.Unmarshal(resp.Body(), &result)
 	if err != nil {
-		return nil, s.error(err, "BatchSummarize", requestBody)
+		return nil, s.error(err, "BatchSummarize", s.vertex.config)
 	}
 
 	// Parse JSON to []summary
 	summary := []Summary{}
 	err = json.Unmarshal([]byte(result.Candidates[0].Content.Parts[0].Text), &summary)
 	if err != nil {
-		return nil, s.error(err, "BatchSummarize", requestBody)
+		return nil, s.error(err, "BatchSummarize", s.vertex.config)
 	}
 
 	return summary, nil
