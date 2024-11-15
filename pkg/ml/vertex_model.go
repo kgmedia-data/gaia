@@ -57,11 +57,18 @@ type OutputVertex struct {
 	Candidates []struct {
 		AvgLogprobs float64 `json:"avgLogprobs"`
 		Content     struct {
+			Role  string `json:"role"`
 			Parts []struct {
 				Text string `json:"text"`
 			} `json:"parts"`
 		} `json:"content"`
-		Role          string `json:"role"`
+		GroundingMetadata struct {
+			GroundingChunks []struct {
+				RetrievedContext struct {
+					Text string `json:"text"`
+				} `json:"retrievedContext"`
+			} `json:"groundingChunks"`
+		} `json:"groundingMetadata"`
 		FinishReason  string `json:"finishReason"`
 		SafetyRatings []struct {
 			Category         string  `json:"category"`
@@ -71,10 +78,10 @@ type OutputVertex struct {
 			SeverityScore    float64 `json:"severityScore"`
 		} `json:"safetyRatings"`
 	} `json:"candidates"`
-	ModelVersion  string `json:"modelVersion"`
 	UsageMetadata struct {
 		CandidatesTokenCount int `json:"candidatesTokenCount"`
 		PromptTokenCount     int `json:"promptTokenCount"`
 		TotalTokenCount      int `json:"totalTokenCount"`
 	} `json:"usageMetadata"`
+	ModelVersion string `json:"modelVersion"`
 }
