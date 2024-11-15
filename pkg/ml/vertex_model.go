@@ -7,12 +7,12 @@ type Summary struct {
 
 // Vertex AI Config
 type VertexAIConfig struct {
-	Model             string                 `json:"model"`
-	GenerationConfig  GenerationConfig       `json:"generation_config"`
-	SystemInstruction SystemInstruction      `json:"systemInstruction"`
-	Contents          Contents               `json:"contents"`
-	Labels            map[string]string      `json:"labels"`
-	SafetySettings    map[string]interface{} `json:"safety_settings"`
+	Model             string            `json:"model"`
+	GenerationConfig  GenerationConfig  `json:"generation_config"`
+	SystemInstruction SystemInstruction `json:"systemInstruction"`
+	Contents          Contents          `json:"contents"`
+	Labels            map[string]string `json:"labels"`
+	SafetySettings    []SafetySettings  `json:"safetySettings,omitempty"`
 }
 
 type GenerationConfig struct {
@@ -36,6 +36,11 @@ type Contents struct {
 
 type InstructionPart struct {
 	Text string `json:"text"`
+}
+
+type SafetySettings struct {
+	Category  string `json:"category"`
+	Threshold string `json:"threshold"`
 }
 
 // Vertex AI Output

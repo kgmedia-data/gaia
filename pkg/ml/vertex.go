@@ -79,10 +79,23 @@ func GenerateVertexDefaultConfig() *VertexAIConfig {
 			Role: "MODEL",
 		},
 		Labels: map[string]string{},
-		SafetySettings: map[string]interface{}{
-			"category":  "HARM_CATEGORY_HATE_SPEECH",
-			"threshold": "BLOCK_ONLY_HIGH",
-			"method":    "SEVERITY",
+		SafetySettings: []SafetySettings{
+			{
+				Category:  "HARM_CATEGORY_HATE_SPEECH",
+				Threshold: "OFF",
+			},
+			{
+				Category:  "HARM_CATEGORY_DANGEROUS_CONTENT",
+				Threshold: "OFF",
+			},
+			{
+				Category:  "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+				Threshold: "OFF",
+			},
+			{
+				Category:  "HARM_CATEGORY_HARASSMENT",
+				Threshold: "OFF",
+			},
 		},
 	}
 
@@ -131,9 +144,14 @@ func (s *VertexRestModel) SetLabels(labels map[string]string) *VertexRestModel {
 	return s
 }
 
-func (s *VertexRestModel) SetSafetySettings(safetySettings map[string]interface{}) *VertexRestModel {
+func (s *VertexRestModel) SetSafetySettings(safetySettings map[string]string) *VertexRestModel {
 	for k, v := range safetySettings {
-		s.config.SafetySettings[k] = v
+		for idx, setting := range s.config.SafetySettings {
+			if setting.Category == k {
+				s.config.SafetySettings[idx].Threshold = v
+				break
+			}
+		}
 	}
 	return s
 }
