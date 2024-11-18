@@ -7,3 +7,9 @@ rest:
   secret: "{{ GAIA_JWT_SECRET }}"
 metric:
   host: ":8081"
+gcp_log:
+  projectId: "kgdata-aiml"
+  logName: "gaia"
+  labels:
+    project: "gaia"
+    env: "development"

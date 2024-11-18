@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/kgmedia-data/gaia/pkg/handler"
 	"github.com/kgmedia-data/gaia/sample/config"
 	"github.com/kgmedia-data/gaia/sample/internal/app"
@@ -40,6 +39,7 @@ func appCmd() *cobra.Command {
 		employeeJob    bool
 		employeeStream bool
 		useMem         bool
+		gcpLogging     bool
 	)
 
 	appCmd := &cobra.Command{
@@ -72,6 +72,10 @@ func appCmd() *cobra.Command {
 				if rest {
 					registry.Register("REST", app.CreateRestServer())
 				}
+
+				if gcpLogging {
+					registry.Register("GCP LOGGING", app.CreateLoggerStream())
+				}
 			}
 
 			registry.StartAll()
@@ -83,6 +87,7 @@ func appCmd() *cobra.Command {
 	appCmd.Flags().BoolVar(&employeeJob, "employee-job", false, "enable employee job")
 	appCmd.Flags().BoolVar(&employeeStream, "employee-stream", false, "enable employee stream")
 	appCmd.Flags().BoolVar(&useMem, "use-mem", false, "use memory repository")
+	appCmd.Flags().BoolVar(&gcpLogging, "gcp-log", false, "use GCP Logging")
 
 	return appCmd
 }

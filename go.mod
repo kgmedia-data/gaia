@@ -3,6 +3,7 @@ module github.com/kgmedia-data/gaia
 go 1.20
 
 require (
+	cloud.google.com/go/logging v1.10.0
 	cloud.google.com/go/pubsub v1.40.0
 	github.com/go-co-op/gocron v1.37.0
 	github.com/juju/errors v1.0.0
@@ -26,6 +27,7 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.2.2 // indirect
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	cloud.google.com/go/iam v1.1.8 // indirect
+	cloud.google.com/go/longrunning v0.5.7 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
