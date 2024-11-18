@@ -17,13 +17,13 @@ type VertexAIConfig struct {
 }
 
 type GenerationConfig struct {
-	Temperature      float64                `json:"temperature"`
-	TopP             int                    `json:"topP"`
-	TopK             int                    `json:"topK"`
-	CandidateCount   int                    `json:"candidateCount"`
-	MaxOutputTokens  int                    `json:"maxOutputTokens"`
-	ResponseMimeType string                 `json:"responseMimeType"`
-	ResponseSchema   map[string]interface{} `json:"responseSchema"`
+	Temperature      float64                `json:"temperature,omitempty"`
+	TopP             int                    `json:"topP,omitempty"`
+	TopK             *int                   `json:"topK,omitempty"`
+	CandidateCount   int                    `json:"candidateCount,omitempty"`
+	MaxOutputTokens  int                    `json:"maxOutputTokens,omitempty"`
+	ResponseMimeType string                 `json:"responseMimeType,omitempty"`
+	ResponseSchema   map[string]interface{} `json:"responseSchema,omitempty"`
 }
 
 type SystemInstruction struct {
@@ -45,11 +45,15 @@ type SafetySettings struct {
 }
 
 type Tools struct {
-	Retrieval struct {
-		VertexAiSearch struct {
-			Datastore string `json:"datastore"`
-		} `json:"vertexAiSearch"`
-	} `json:"retrieval"`
+	Retrieval Retrieval `json:"retrieval"`
+}
+
+type Retrieval struct {
+	VertexAISearch VertexAISearch `json:"vertexAiSearch"`
+}
+
+type VertexAISearch struct {
+	Datastore string `json:"datastore"`
 }
 
 // Vertex AI Output

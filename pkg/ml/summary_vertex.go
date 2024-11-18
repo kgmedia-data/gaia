@@ -7,8 +7,7 @@ import (
 )
 
 type SummaryVertexRest struct {
-	endpoint string
-	vertex   *VertexRestModel
+	VertexRest
 }
 
 func NewSummaryVertexRest(projectID, location string, vertex *VertexRestModel) (*SummaryVertexRest, error) {
@@ -41,19 +40,21 @@ func NewSummaryVertexRest(projectID, location string, vertex *VertexRestModel) (
 	endpoint := fmt.Sprintf("https://%s-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/google/models/%s:generateContent", location, projectID, location, vertex.config.Model)
 
 	return &SummaryVertexRest{
-		endpoint: endpoint,
-		vertex:   vertex,
+		VertexRest: VertexRest{
+			endpoint: endpoint,
+			vertex:   vertex,
+		},
 	}, nil
 }
 
 func (s SummaryVertexRest) error(err error, method string, params ...interface{}) error {
-	return fmt.Errorf("SummarizeVertex.(%v)(%v) %w", method, params, err)
+	return fmt.Errorf("SummarizeVertexRest.(%v)(%v) %w", method, params, err)
 }
 
 func (s *SummaryVertexRest) BatchSummarize(language string, minSentences, maxSentences int, input []Summary) ([]Summary, error) {
 
 	contents_text := s.generateContentsText(language, minSentences, maxSentences, input)
-	s.vertex.SetContent(contents_text)
+	s.vertex.SetContent(contents_text, "USER")
 
 	resp, err := s.vertex.request.
 		SetBody(s.vertex.config).

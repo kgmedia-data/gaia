@@ -15,6 +15,11 @@ type VertexRestModel struct {
 	config  VertexAIConfig
 }
 
+type VertexRest struct {
+	endpoint string
+	vertex   *VertexRestModel
+}
+
 func getAccessToken() (string, error) {
 	ctx := context.Background()
 	// read file into array of bytes
@@ -69,16 +74,13 @@ func GenerateVertexDefaultConfig() *VertexAIConfig {
 		GenerationConfig: GenerationConfig{
 			Temperature:      1,
 			TopP:             1,
-			TopK:             1,
 			CandidateCount:   1,
 			MaxOutputTokens:  1024,
 			ResponseMimeType: "application/json",
 		},
 		SystemInstruction: SystemInstruction{},
-		Contents: Contents{
-			Role: "MODEL",
-		},
-		Labels: map[string]string{},
+		Contents:          Contents{},
+		Labels:            map[string]string{},
 		SafetySettings: []SafetySettings{
 			{
 				Category:  "HARM_CATEGORY_HATE_SPEECH",
@@ -132,12 +134,14 @@ func (s *VertexRestModel) AddSystemInstruction(instruction string) *VertexRestMo
 	return s
 }
 
-func (s *VertexRestModel) AddContent(prompt string) *VertexRestModel {
+func (s *VertexRestModel) AddContent(prompt string, role string) *VertexRestModel {
+	s.config.Contents.Role = role
 	s.config.Contents.Parts = append(s.config.Contents.Parts, InstructionPart{Text: prompt})
 	return s
 }
 
-func (s *VertexRestModel) SetContent(prompt string) *VertexRestModel {
+func (s *VertexRestModel) SetContent(prompt, role string) *VertexRestModel {
+	s.config.Contents.Role = role
 	s.config.Contents.Parts = []InstructionPart{{Text: prompt}}
 	return s
 }
