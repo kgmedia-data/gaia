@@ -2,6 +2,9 @@ package app
 
 import (
 	"github.com/kgmedia-data/gaia/pkg/handler"
+	gcp_log "github.com/kgmedia-data/gaia/pkg/log"
+	"github.com/kgmedia-data/gaia/pkg/msg"
+	"github.com/kgmedia-data/gaia/pkg/pub"
 	"github.com/kgmedia-data/gaia/sample/config"
 	"github.com/kgmedia-data/gaia/sample/internal/app/repo"
 	"github.com/kgmedia-data/gaia/sample/internal/app/rest"
@@ -10,11 +13,17 @@ import (
 )
 
 type App struct {
-	cfg config.Config
+	cfg        config.Config
+	gcpLogChan chan msg.Message[string]
 }
 
 func NewApp(cfg config.Config) *App {
-	return &App{cfg: cfg}
+	gcpLogChan := make(chan msg.Message[string], 100)
+
+	return &App{
+		cfg:        cfg,
+		gcpLogChan: gcpLogChan,
+	}
 }
 
 // @title Swagger Example API
@@ -44,4 +53,19 @@ func (a *App) CreateRestServer() handler.IHandler {
 
 	restHdlr := rest.NewRest(a.cfg.Rest.Server.Host, deptSvc, emplSvc)
 	return restHdlr
+}
+
+func (a *App) CreateLoggerStream() handler.IHandler {
+	logProc := gcp_log.NewGCPProcessor(
+		a.cfg.GcpLog.LogName,
+		a.cfg.GcpLog.ProjectId,
+		a.cfg.GcpLog.Labels,
+	)
+	pubChanGcpLogger := pub.NewChanPublisher(a.gcpLogChan)
+	logrus.AddHook(gcp_log.NewExtraFieldHook(pubChanGcpLogger))
+	return handler.NewChanHandler[string](
+		a.gcpLogChan,
+		1,
+		logProc,
+	)
 }
