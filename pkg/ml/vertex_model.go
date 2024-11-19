@@ -1,11 +1,6 @@
 package ml
 
-type Summary struct {
-	GroupID string `json:"group_id"`
-	Content string `json:"content"`
-}
-
-// Vertex AI Config
+// ======================= Vertex AI Config ===============================
 type VertexAIConfig struct {
 	Model             string            `json:"model"`
 	GenerationConfig  GenerationConfig  `json:"generation_config"`
@@ -56,7 +51,13 @@ type VertexAISearch struct {
 	Datastore string `json:"datastore"`
 }
 
-// Vertex AI Output
+type ProjectLabel struct {
+	ProjectName string
+	EnvName     string
+	TaskName    string
+}
+
+// ======================= Vertex AI Output ===============================
 type OutputVertex struct {
 	Candidates []struct {
 		AvgLogprobs float64 `json:"avgLogprobs"`
@@ -88,4 +89,9 @@ type OutputVertex struct {
 		TotalTokenCount      int `json:"totalTokenCount"`
 	} `json:"usageMetadata"`
 	ModelVersion string `json:"modelVersion"`
+}
+
+type Summary struct {
+	GroupID string `json:"group_id"`
+	Content string `json:"content"`
 }

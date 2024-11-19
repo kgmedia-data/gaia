@@ -2,55 +2,24 @@ package ml
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"strings"
 
 	"github.com/go-resty/resty/v2"
 	"golang.org/x/oauth2/google"
 )
 
-type VertexRestModel struct {
-	request *resty.Request
-	config  VertexAIConfig
-}
-
 type VertexRest struct {
+	request  *resty.Request
+	config   VertexAIConfig
 	endpoint string
-	vertex   *VertexRestModel
 }
 
-func getAccessToken() (string, error) {
-	ctx := context.Background()
-	// read file into array of bytes
-	filename := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
-	file, err := os.Open(filename)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-
-	data, err := io.ReadAll(file)
-	if err != nil {
-		return "", err
-	}
-
-	creds, err := google.CredentialsFromJSON(ctx, []byte(data),
-		"https://www.googleapis.com/auth/cloud-platform")
-	if err != nil {
-		return "", err
-	}
-
-	token, err := creds.TokenSource.Token()
-	if err != nil {
-		return "", err
-	}
-
-	return token.AccessToken, nil
-
-}
-
-func NewVertexRestModel() (*VertexRestModel, error) {
+func NewVertexRest() (*VertexRest, error) {
 
 	token, err := getAccessToken()
 	if err != nil {
@@ -62,7 +31,7 @@ func NewVertexRestModel() (*VertexRestModel, error) {
 	request.SetHeader("Content-Type", "application/json")
 	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
-	return &VertexRestModel{
+	return &VertexRest{
 		request: request,
 		config:  *GenerateVertexDefaultConfig(),
 	}, nil
@@ -104,56 +73,142 @@ func GenerateVertexDefaultConfig() *VertexAIConfig {
 	return &config
 }
 
-func (s *VertexRestModel) SetModel(model string) *VertexRestModel {
+func getAccessToken() (string, error) {
+	ctx := context.Background()
+	// read file into array of bytes
+	filename := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
+	file, err := os.Open(filename)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return "", err
+	}
+
+	creds, err := google.CredentialsFromJSON(ctx, []byte(data),
+		"https://www.googleapis.com/auth/cloud-platform")
+	if err != nil {
+		return "", err
+	}
+
+	token, err := creds.TokenSource.Token()
+	if err != nil {
+		return "", err
+	}
+
+	return token.AccessToken, nil
+
+}
+
+func (s VertexRest) error(err error, method string, params ...interface{}) error {
+	return fmt.Errorf("VertexRestModel.(%v)(%v) %w", method, params, err)
+}
+
+func (s *VertexRest) GetResponse() (*resty.Response, error) {
+	resp, err := s.request.
+		SetBody(s.config).
+		Post(s.endpoint)
+	if err != nil {
+		return nil, s.error(err, "BatchSummarize", s.config)
+	}
+
+	if resp.StatusCode() != http.StatusOK {
+		return nil, fmt.Errorf("failed to get summary: status %s, response: %s", resp.Status(), resp.Body())
+	}
+	return resp, nil
+}
+
+func (s *VertexRest) ParseResponse(resp *resty.Response) ([]byte, error) {
+	result := OutputVertex{}
+	err := json.Unmarshal(resp.Body(), &result)
+	if err != nil {
+		return []byte{}, s.error(err, "ParseResponse", resp)
+	}
+
+	return []byte(result), nil
+}
+
+func (s *VertexRest) ParseSingleResponse(resp *resty.Response) ([]byte, error) {
+	result := OutputVertex{}
+	err := json.Unmarshal(resp.Body(), &result)
+	if err != nil {
+		return []byte{}, s.error(err, "ParseResponse", resp)
+	}
+
+	return []byte(result.Candidates[0].Content.Parts[0].Text), nil
+}
+
+func (s *VertexRest) SetEndpoint(endpoint string) *VertexRest {
+	s.endpoint = endpoint
+	return s
+}
+func (s *VertexRest) SetModel(model string) *VertexRest {
 	s.config.Model = model
 	return s
 }
 
-func (s *VertexRestModel) SetTemperature(temp float64) *VertexRestModel {
+func (s *VertexRest) SetTemperature(temp float64) *VertexRest {
 	s.config.GenerationConfig.Temperature = temp
 	return s
 }
 
-func (s *VertexRestModel) SetTopP(topP int) *VertexRestModel {
+func (s *VertexRest) SetTopP(topP int) *VertexRest {
 	s.config.GenerationConfig.TopP = topP
 	return s
 }
 
-func (s *VertexRestModel) SetMaxOutputTokens(maxOutputTokens int) *VertexRestModel {
+func (s *VertexRest) SetMaxOutputTokens(maxOutputTokens int) *VertexRest {
 	s.config.GenerationConfig.MaxOutputTokens = maxOutputTokens
 	return s
 }
 
-func (s *VertexRestModel) SetResponseSchema(schema map[string]interface{}) *VertexRestModel {
+func (s *VertexRest) SetResponseSchema(schema map[string]interface{}) *VertexRest {
 	s.config.GenerationConfig.ResponseSchema = schema
 	return s
 }
 
-func (s *VertexRestModel) AddSystemInstruction(instruction string) *VertexRestModel {
+func (s *VertexRest) AddSystemInstruction(instruction string) *VertexRest {
 	s.config.SystemInstruction.Parts = append(s.config.SystemInstruction.Parts, InstructionPart{Text: instruction})
 	return s
 }
 
-func (s *VertexRestModel) AddContent(prompt string, role string) *VertexRestModel {
+func (s *VertexRest) AddContent(prompt string, role string) *VertexRest {
+	role = strings.ToUpper(role)
+	if role != "USER" && role != "MODEL" {
+		return s
+	}
 	s.config.Contents.Role = role
 	s.config.Contents.Parts = append(s.config.Contents.Parts, InstructionPart{Text: prompt})
 	return s
 }
 
-func (s *VertexRestModel) SetContent(prompt, role string) *VertexRestModel {
+func (s *VertexRest) SetContent(prompt, role string) *VertexRest {
+	role = strings.ToUpper(role)
+	if role != "USER" && role != "MODEL" {
+		return s
+	}
 	s.config.Contents.Role = role
 	s.config.Contents.Parts = []InstructionPart{{Text: prompt}}
 	return s
 }
 
-func (s *VertexRestModel) AddLabels(labels map[string]string) *VertexRestModel {
-	for k, v := range labels {
-		s.config.Labels[k] = v
+func (s *VertexRest) AddLabel(key, value string) *VertexRest {
+	if key == "" {
+		return s
+	}
+	if value != "" {
+		s.config.Labels[key] = value
+	} else {
+		delete(s.config.Labels, key)
 	}
 	return s
 }
 
-func (s *VertexRestModel) SetSafetySettings(safetySettings map[string]string) *VertexRestModel {
+func (s *VertexRest) SetSafetySettings(safetySettings map[string]string) *VertexRest {
+
 	for k, v := range safetySettings {
 		for idx, setting := range s.config.SafetySettings {
 			if setting.Category == k {
@@ -165,7 +220,7 @@ func (s *VertexRestModel) SetSafetySettings(safetySettings map[string]string) *V
 	return s
 }
 
-func (s *VertexRestModel) AddTools(tools []Tools) *VertexRestModel {
+func (s *VertexRest) AddTools(tools []Tools) *VertexRest {
 	s.config.Tools = append(s.config.Tools, tools...)
 	return s
 }

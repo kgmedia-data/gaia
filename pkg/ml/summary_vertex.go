@@ -3,14 +3,15 @@ package ml
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
+
+	"github.com/go-resty/resty/v2"
 )
 
 type SummaryVertexRest struct {
-	VertexRest
+	vertex *VertexRest
 }
 
-func NewSummaryVertexRest(projectID, location string, vertex *VertexRestModel) (*SummaryVertexRest, error) {
+func (vertex *VertexRest) NewSummaryVertexRest(projectID, location string, projectLabel ProjectLabel) (*SummaryVertexRest, error) {
 
 	vertex.SetModel("gemini-1.5-flash-002").
 		SetTemperature(1).
@@ -31,20 +32,12 @@ func NewSummaryVertexRest(projectID, location string, vertex *VertexRestModel) (
 				"required": []string{"content", "group_id"},
 			},
 		}).
-		AddLabels(map[string]string{
-			"project": "medeab",
-			"env":     "prod",
-			"task":    "summarization",
-		})
+		AddLabel("project", projectLabel.ProjectName).
+		AddLabel("env", projectLabel.EnvName).
+		AddLabel("task", projectLabel.TaskName).
+		SetEndpoint(fmt.Sprintf("https://%s-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/google/models/%s:generateContent", location, projectID, location, vertex.config.Model))
 
-	endpoint := fmt.Sprintf("https://%s-aiplatform.googleapis.com/v1/projects/%s/locations/%s/publishers/google/models/%s:generateContent", location, projectID, location, vertex.config.Model)
-
-	return &SummaryVertexRest{
-		VertexRest: VertexRest{
-			endpoint: endpoint,
-			vertex:   vertex,
-		},
-	}, nil
+	return &SummaryVertexRest{vertex: vertex}, nil
 }
 
 func (s SummaryVertexRest) error(err error, method string, params ...interface{}) error {
@@ -56,32 +49,19 @@ func (s *SummaryVertexRest) BatchSummarize(language string, minSentences, maxSen
 	contents_text := s.generateContentsText(language, minSentences, maxSentences, input)
 	s.vertex.SetContent(contents_text, "USER")
 
-	resp, err := s.vertex.request.
-		SetBody(s.vertex.config).
-		Post(s.endpoint)
+	resp, err := s.vertex.GetResponse()
 	if err != nil {
-		return nil, s.error(err, "BatchSummarize", s.vertex.config)
+		return nil, s.error(err, "BatchSummarize")
 	}
+	fmt.Println("response", resp)
 
-	if resp.StatusCode() != http.StatusOK {
-		return nil, fmt.Errorf("failed to get summary: status %s, response: %s", resp.Status(), resp.Body())
-	}
-
-	// Parse Response Body to JSON
-	result := OutputVertex{}
-	err = json.Unmarshal(resp.Body(), &result)
+	result, err := s.ParseResponse(resp)
 	if err != nil {
-		return nil, s.error(err, "BatchSummarize", s.vertex.config)
+		return nil, s.error(err, "BatchSummarize")
 	}
+	fmt.Println("result", result)
 
-	// Parse JSON to []summary
-	summary := []Summary{}
-	err = json.Unmarshal([]byte(result.Candidates[0].Content.Parts[0].Text), &summary)
-	if err != nil {
-		return nil, s.error(err, "BatchSummarize", s.vertex.config)
-	}
-
-	return summary, nil
+	return result, nil
 }
 
 func (s *SummaryVertexRest) generateContentsText(language string, minSentences, maxSentences int, input []Summary) (contents string) {
@@ -91,4 +71,18 @@ func (s *SummaryVertexRest) generateContentsText(language string, minSentences, 
 		contents += fmt.Sprintf("group_id: %s, content %d: %s\n", data.GroupID, idx+1, data.Content)
 	}
 	return contents
+}
+
+func (s *SummaryVertexRest) ParseResponse(resp *resty.Response) ([]Summary, error) {
+	response, err := s.vertex.ParseSingleResponse(resp)
+	if err != nil {
+		return nil, s.error(err, "BatchSummarize")
+	}
+
+	result := []Summary{}
+	err = json.Unmarshal(response, &result)
+	if err != nil {
+		return nil, s.error(err, "ParseResponse")
+	}
+	return result, nil
 }

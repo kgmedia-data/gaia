@@ -1,7 +1,9 @@
 package ml
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -24,11 +26,16 @@ func TestInferSummaryRestVertex(t *testing.T) {
 	}
 	projectID := "kgdata-aiml"
 	location := "asia-southeast1"
+	projectLabel := ProjectLabel{
+		ProjectName: "medeab",
+		EnvName:     "dev",
+		TaskName:    "summarization",
+	}
 
-	vertex, err := NewVertexRestModel()
+	vertex, err := NewVertexRest()
 	assert.NoError(t, err)
 
-	model, err := NewSummaryVertexRest(projectID, location, vertex)
+	model, err := vertex.NewSummaryVertexRest(projectID, location, projectLabel)
 	assert.NoError(t, err)
 	fmt.Printf("model vertex config: %+v\n", model.vertex.config)
 
@@ -36,4 +43,29 @@ func TestInferSummaryRestVertex(t *testing.T) {
 	fmt.Println("resp", resp)
 	assert.NoError(t, err)
 	assert.Equal(t, 5, len(resp))
+}
+
+func TestInferRAGVertex(t *testing.T) {
+	projectID := "kgdata-aiml"
+	location := "global"
+	dataStores := "insighthub-article-data-testing_1729824816557"
+	vertex, err := NewVertexRest()
+	assert.NoError(t, err)
+
+	projectLabel := ProjectLabel{
+		ProjectName: "medeab",
+		EnvName:     "dev",
+		TaskName:    "insighthub",
+	}
+	model, err := NewRAGVertexRest(projectID, location, dataStores, projectLabel, vertex)
+	assert.NoError(t, err)
+	fmt.Printf("model vertex config: %+v\n", model.vertex.config)
+
+	resp, err := model.Infer("siapa competitor yang sedang masif campaignnya?", "USER")
+	assert.NoError(t, err)
+
+	jsonData, err := json.MarshalIndent(resp, "", "  ")
+	assert.NoError(t, err)
+	err = os.WriteFile("test_rag.json", jsonData, 0644)
+	assert.NoError(t, err)
 }
