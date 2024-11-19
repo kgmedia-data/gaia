@@ -121,14 +121,14 @@ func (s *VertexRest) GetResponse() (*resty.Response, error) {
 	return resp, nil
 }
 
-func (s *VertexRest) ParseResponse(resp *resty.Response) ([]byte, error) {
+func (s *VertexRest) ParseResponse(resp *resty.Response) (OutputVertex, error) {
 	result := OutputVertex{}
 	err := json.Unmarshal(resp.Body(), &result)
 	if err != nil {
-		return []byte{}, s.error(err, "ParseResponse", resp)
+		return OutputVertex{}, s.error(err, "ParseResponse", resp)
 	}
 
-	return []byte(result), nil
+	return result, nil
 }
 
 func (s *VertexRest) ParseSingleResponse(resp *resty.Response) ([]byte, error) {
