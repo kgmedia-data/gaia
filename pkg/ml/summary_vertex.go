@@ -53,13 +53,11 @@ func (s *SummaryVertexRest) BatchSummarize(language string, minSentences, maxSen
 	if err != nil {
 		return nil, s.error(err, "BatchSummarize")
 	}
-	fmt.Println("response", resp)
 
 	result, err := s.ParseResponse(resp)
 	if err != nil {
 		return nil, s.error(err, "BatchSummarize")
 	}
-	fmt.Println("result", result)
 
 	return result, nil
 }
