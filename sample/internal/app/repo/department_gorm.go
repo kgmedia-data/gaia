@@ -2,6 +2,7 @@ package repo
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 
 	"github.com/kgmedia-data/gaia/sample/internal/app/domain"
 )
@@ -17,7 +18,9 @@ func NewDepartmentGorm(gormRepo *GormRepo) *DepartmentGormRepo {
 }
 
 func (r DepartmentGormRepo) error(err error, method string, params ...interface{}) error {
-	return fmt.Errorf("DepartmentGormRepo.(%v)(%v) %w", method, params, err)
+	message := fmt.Errorf("DepartmentGormRepo.(%v)(%v) %w", method, params, err)
+	logrus.Error(message)
+	return message
 }
 
 func (r *DepartmentGormRepo) GetDepartment(id int) (domain.Department, error) {
@@ -30,7 +33,11 @@ func (r *DepartmentGormRepo) GetDepartment(id int) (domain.Department, error) {
 
 func (r *DepartmentGormRepo) GetDepartments(offset, limit int) ([]domain.Department, error) {
 	var departments Departments
-
+	logrus.WithFields(logrus.Fields{
+		"gcp":       true,
+		"firstName": "Kompas",
+		"lastName":  "Gramedia",
+	}).Info("GetDepartments Repo is run")
 	tx := r.GormDB.
 		Where("is_deleted = ?", false).
 		Offset(offset).

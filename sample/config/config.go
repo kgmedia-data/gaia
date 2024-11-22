@@ -12,12 +12,19 @@ import (
 type Config struct {
 	Rest   RestConfig   `mapstructure:"rest"`
 	Metric MetricConfig `mapstructure:"metric"`
+	GcpLog GcpLog       `mapstructure:"gcpLog"`
 }
 
 type RestConfig struct {
 	Server ServerConfig   `mapstructure:"server"`
 	Db     DatabaseConfig `mapstructure:"db"`
 	Secret string         `mapstructure:"secret"`
+}
+
+type GcpLog struct {
+	ProjectId string            `mapstructure:"projectId"`
+	LogName   string            `mapstructure:"logName"`
+	Labels    map[string]string `mapstructure:"labels"`
 }
 
 type ServerConfig struct {
