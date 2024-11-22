@@ -1,10 +1,7 @@
 package ml
 
 import (
-	"encoding/json"
 	"fmt"
-
-	"github.com/go-resty/resty/v2"
 )
 
 type SummaryVertexRest struct {
@@ -54,7 +51,8 @@ func (s *SummaryVertexRest) BatchSummarize(language string, minSentences, maxSen
 		return nil, s.error(err, "BatchSummarize")
 	}
 
-	result, err := s.ParseResponse(resp)
+	result := []Summary{}
+	err = ParseSingleResponseVertex(resp, &result)
 	if err != nil {
 		return nil, s.error(err, "BatchSummarize")
 	}
@@ -69,18 +67,4 @@ func (s *SummaryVertexRest) generateContentsText(language string, minSentences, 
 		contents += fmt.Sprintf("group_id: %s, content %d: %s\n", data.GroupID, idx+1, data.Content)
 	}
 	return contents
-}
-
-func (s *SummaryVertexRest) ParseResponse(resp *resty.Response) ([]Summary, error) {
-	response, err := s.vertex.ParseSingleResponse(resp)
-	if err != nil {
-		return nil, s.error(err, "BatchSummarize")
-	}
-
-	result := []Summary{}
-	err = json.Unmarshal(response, &result)
-	if err != nil {
-		return nil, s.error(err, "ParseResponse")
-	}
-	return result, nil
 }

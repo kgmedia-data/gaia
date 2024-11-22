@@ -131,14 +131,18 @@ func (s *VertexRest) ParseResponse(resp *resty.Response) (OutputVertex, error) {
 	return result, nil
 }
 
-func (s *VertexRest) ParseSingleResponse(resp *resty.Response) ([]byte, error) {
-	result := OutputVertex{}
-	err := json.Unmarshal(resp.Body(), &result)
-	if err != nil {
-		return []byte{}, s.error(err, "ParseResponse", resp)
+func ParseSingleResponseVertex[T any](resp *resty.Response, result *T) error {
+	outputVertex := OutputVertex{}
+	if err := json.Unmarshal(resp.Body(), &outputVertex); err != nil {
+		return fmt.Errorf("ParseSingleResponse - resp.Body(): %w (%v)", err, resp.Body())
 	}
 
-	return []byte(result.Candidates[0].Content.Parts[0].Text), nil
+	data := outputVertex.Candidates[0].Content.Parts[0].Text
+	if err := json.Unmarshal([]byte(data), result); err != nil {
+		return fmt.Errorf("ParseSingleResponse - data: %w (%v)", err, data)
+	}
+
+	return nil
 }
 
 func (s *VertexRest) SetEndpoint(endpoint string) *VertexRest {
