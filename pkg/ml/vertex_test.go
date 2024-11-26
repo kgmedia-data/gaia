@@ -66,6 +66,31 @@ func TestInferRAGVertex(t *testing.T) {
 
 	jsonData, err := json.MarshalIndent(resp, "", "  ")
 	assert.NoError(t, err)
-	err = os.WriteFile("test_rag.json", jsonData, 0644)
+	err = os.WriteFile("vertex_test_rag.json", jsonData, 0644)
+	assert.NoError(t, err)
+}
+
+func TestInferSentimentVertex(t *testing.T) {
+	projectID := "kgdata-aiml"
+	location := "asia-southeast1"
+	vertex, err := NewVertexRest()
+	assert.NoError(t, err)
+
+	projectLabel := ProjectLabel{
+		ProjectName: "medeab",
+		EnvName:     "dev",
+		TaskName:    "sentiment",
+	}
+
+	model, err := vertex.NewSentimentVertexRest(projectID, location, projectLabel)
+	assert.NoError(t, err)
+
+	text := `extract entity-based sentiment from this texts
+			: text-1:Yg mnyingkirkan tiktok bukan jokowi..tapi para pdagang kaki lima dan toko toko kecil yh protes... saya juga lihat di shopee yg berjualan di itu jutaan...bro...knpa lagi shope yg di salahkan.... klo belanja di tiktok banyak yg ketipu....ga sesuai pesanan
+			entity-1: Shopee, entityID-1: 1
+			entity-2: Tiktok, entityID-2: 2
+	`
+	resp, err := model.Infer(text)
+	fmt.Println("resp", resp)
 	assert.NoError(t, err)
 }
