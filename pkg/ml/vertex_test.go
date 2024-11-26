@@ -70,7 +70,7 @@ func TestInferRAGVertex(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestInferSentimentVertex(t *testing.T) {
+func TestInferEntitySentimentVertex(t *testing.T) {
 	projectID := "kgdata-aiml"
 	location := "asia-southeast1"
 	vertex, err := NewVertexRest()
@@ -82,7 +82,7 @@ func TestInferSentimentVertex(t *testing.T) {
 		TaskName:    "sentiment",
 	}
 
-	model, err := vertex.NewSentimentVertexRest(projectID, location, projectLabel)
+	model, err := vertex.NewEntitySentimentVertexRest(projectID, location, projectLabel)
 	assert.NoError(t, err)
 
 	text := `extract entity-based sentiment from this texts

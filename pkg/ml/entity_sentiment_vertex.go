@@ -8,7 +8,7 @@ type EntitySentimentVertex struct {
 	vertex *VertexRest
 }
 
-func (vertex *VertexRest) NewSentimentVertexRest(projectID, location string, projectLabel ProjectLabel) (*EntitySentimentVertex, error) {
+func (vertex *VertexRest) NewEntitySentimentVertexRest(projectID, location string, projectLabel ProjectLabel) (*EntitySentimentVertex, error) {
 
 	vertex.SetModel("gemini-1.5-flash-002").
 		SetTemperature(1).
