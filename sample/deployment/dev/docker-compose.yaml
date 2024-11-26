@@ -9,3 +9,12 @@ services:
       - TZ=Asia/Jakarta
     ports:
       - 5432:5432
+
+  pubsub:
+    image: thekevjames/gcloud-pubsub-emulator:latest
+    platform: linux/amd64
+    environment:
+      - PUBSUB_PROJECT1=gaia-dev,gaia-dev-topic:gaia-dev-topic-sub
+    ports:
+      - 8681:8681
+      - 8682:8682

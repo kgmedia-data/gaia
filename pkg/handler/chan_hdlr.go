@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/kgmedia-data/gaia/pkg/msg"
 
@@ -10,11 +11,16 @@ import (
 )
 
 type ChanHandler[T any] struct {
-	msgChan  chan msg.Message[T]
-	doneChan chan bool
-	wgC      *sync.WaitGroup
-	proc     IProcessor[T]
-	nWorker  int
+	msgChan      chan msg.Message[T]
+	doneChan     chan bool
+	wgC          *sync.WaitGroup
+	streamProc   IProcessor[T]
+	batchProc    IBatchProcessor[T]
+	batchSize    int
+	batchTimeout time.Duration
+	batchTicker  *time.Ticker
+	nWorker      int
+	batchMsgs    msg.Messages[T]
 }
 
 func NewChanHandler[T any](msgChan chan msg.Message[T], nWorker int,
@@ -23,11 +29,29 @@ func NewChanHandler[T any](msgChan chan msg.Message[T], nWorker int,
 	wgC := new(sync.WaitGroup)
 
 	return &ChanHandler[T]{
-		msgChan:  msgChan,
-		wgC:      wgC,
-		nWorker:  nWorker,
-		proc:     proc,
-		doneChan: make(chan bool, nWorker),
+		msgChan:    msgChan,
+		wgC:        wgC,
+		nWorker:    nWorker,
+		streamProc: proc,
+		doneChan:   make(chan bool, nWorker),
+	}
+}
+
+func NewChanBatchHandler[T any](msgChan chan msg.Message[T], nWorker int,
+	proc IBatchProcessor[T], batchSize int, batchTimeout time.Duration) *ChanHandler[T] {
+
+	wgC := new(sync.WaitGroup)
+
+	return &ChanHandler[T]{
+		msgChan:      msgChan,
+		wgC:          wgC,
+		nWorker:      nWorker,
+		batchProc:    proc,
+		batchSize:    batchSize,
+		batchTimeout: batchTimeout,
+		batchMsgs:    msg.NewMessages[T](),
+		batchTicker:  time.NewTicker(batchTimeout),
+		doneChan:     make(chan bool, nWorker),
 	}
 }
 
@@ -46,16 +70,48 @@ func (c *ChanHandler[T]) Start() error {
 				case <-c.doneChan:
 					return
 				case m := <-c.msgChan:
-					err := c.proc.Execute(m)
+					if c.isBatch() {
+						c.batchMsgs.Add(m)
+						if c.batchMsgs.Len() >= c.batchSize || c.batchMsgs.IsTimeout(c.batchTimeout) {
+							err := c.batchProc.ExecuteBatch(c.batchMsgs.Flush())
+							if err != nil {
+								logrus.Errorln(c.error(err, "Start"))
+							}
+						}
+					} else {
+						err := c.streamProc.Execute(m)
+						if err != nil {
+							logrus.Errorln(c.error(err, "Start"))
+						}
 
-					if err != nil {
-						logrus.Errorln(c.error(err, "Start"))
 					}
 				}
 			}
 		}(i)
 	}
+
+	if c.isBatch() {
+		go func() {
+			for {
+				select {
+				case <-c.doneChan:
+					return
+				case <-c.batchTicker.C:
+					if c.batchMsgs.Len() > 0 && c.batchMsgs.IsTimeout(c.batchTimeout) {
+						err := c.batchProc.ExecuteBatch(c.batchMsgs.Flush())
+						if err != nil {
+							logrus.Errorln(c.error(err, "Start"))
+						}
+					}
+				}
+			}
+		}()
+	}
 	return nil
+}
+
+func (c *ChanHandler[T]) isBatch() bool {
+	return c.batchProc != nil
 }
 
 func (c *ChanHandler[T]) Stop() {
