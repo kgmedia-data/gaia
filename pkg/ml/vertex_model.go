@@ -95,3 +95,12 @@ type Summary struct {
 	GroupID string `json:"group_id"`
 	Content string `json:"content"`
 }
+
+type EntitySentiment struct {
+	ID          int    `json:"id"`
+	EntityID    int    `json:"entity_id"`
+	Name        string `json:"name"`
+	Category    string `json:"category"`
+	Sentiment   string `json:"sentiment"`
+	IsMentioned bool   `json:"is_mentioned"`
+}
