@@ -39,7 +39,25 @@ func TestInferSummaryRestVertex(t *testing.T) {
 	assert.NoError(t, err)
 	fmt.Printf("model vertex config: %+v\n", model.vertex.config)
 
-	resp, err := model.BatchSummarize("English", 2, 6, input)
+	resp, err := model.ProcessAndBatchSummarize("English", 2, 6, input)
+	fmt.Println("resp", resp)
+	assert.NoError(t, err)
+	assert.Equal(t, 5, len(resp))
+
+	contents := `Create a summary of given indonesian news article title. Ignore the html tag and unrelated characters. For each group_id, ONLY generate 1 summary of 1 paragraph (e.g. main-1 only generated in 1 summary), which SHOULD contain only between %d and %d sentences. if there are 5 unique group_id, then also return summary of 5 group_id. Write the summarization in %s. Here are the input:
+
+	group_id: main-1, content 1: IHSG dan Rupiah Menguat di Akhir Sesi group_id: main-1, content 2: IHSG Ditutup Turun, Rupiah Menguat 
+	group_id: main-1, content 3: Imbas Boikot, Penjualan Unilever di Indonesia Turun 15 Persen 
+	group_id: main-1, content 4: Kejar Target Penerbitan, CGS-CIMB Sekuritas Terbitkan 6 Waran Terstruktur 
+	group_id: main-2, content 5: Foreign Direct Investment (FDI): Pengertian, Jenis, dan Contohnya 
+	group_id: main-2, content 6: Perluas Kemitraan, Unilever Teken Kerja Sama dengan GP Ansor 
+	group_id: comp-3, content 7: 5 Saham Paling Cuan Pekan Ini, Ada BMRI, hingga SRTG 
+	group_id: comp-4, content 8: Laba Bersih Turun 10,4 Persen, Bos Unilever: Kami Terdampak Sentimen Konsumen Negatif... 
+	group_id: comp-4, content 9: Lima Saham Paling "Boncos" Sepekan, dari CUAN hingga BTPS 
+	group_id: comp-4, content 10: Simak Rekomendasi Saham Perbankan untuk Pemburu Dividen 
+	group_id: comp-5, content 11: Dukung Pemberdayaan Ekonomi, Industri FMCG dan Kemenag Teken MoU 
+	group_id: comp-5, content 12: Rasakan Dampak Boikot karena Dukung Israel, Unilever Sebut Penjualan di Indonesia Menurun`
+	resp, err = model.BatchSummarize(contents)
 	fmt.Println("resp", resp)
 	assert.NoError(t, err)
 	assert.Equal(t, 5, len(resp))
