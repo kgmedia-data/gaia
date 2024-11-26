@@ -1,6 +1,9 @@
 package msg
 
-import "sync"
+import (
+	"sync"
+	"time"
+)
 
 type ICoder[T any] interface {
 	Encode(data T) ([]byte, error)
@@ -13,13 +16,15 @@ type Message[T any] struct {
 }
 
 type Messages[T any] struct {
-	mu       sync.Mutex
-	Messages []Message[T]
+	mu        sync.Mutex
+	Messages  []Message[T]
+	createdAt time.Time
 }
 
 func NewMessages[T any]() Messages[T] {
 	return Messages[T]{
-		Messages: []Message[T]{},
+		Messages:  []Message[T]{},
+		createdAt: time.Now(),
 	}
 }
 
@@ -34,6 +39,7 @@ func (m *Messages[T]) Flush() []Message[T] {
 	defer m.mu.Unlock()
 	msgs := m.Messages
 	m.Messages = []Message[T]{}
+	m.createdAt = time.Now()
 	return msgs
 }
 
@@ -41,4 +47,10 @@ func (m *Messages[T]) Len() int {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	return len(m.Messages)
+}
+
+func (m *Messages[T]) IsTimeout(timeout time.Duration) bool {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	return time.Since(m.createdAt) > timeout
 }
