@@ -112,7 +112,7 @@ func (s *VertexRest) GetResponse() (*resty.Response, error) {
 		SetBody(s.config).
 		Post(s.endpoint)
 	if err != nil {
-		return nil, s.error(err, "BatchSummarize", s.config)
+		return nil, s.error(err, "GetResponse", s.config)
 	}
 
 	if resp.StatusCode() != http.StatusOK {
