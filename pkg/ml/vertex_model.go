@@ -31,9 +31,14 @@ type Contents struct {
 }
 
 type InstructionPart struct {
-	Text string `json:"text"`
+	Text     *string   `json:"text,omitempty"`
+	FileData *FileData `json:"fileData,omitempty"`
 }
 
+type FileData struct {
+	FileUri  string `json:"fileUri,omitempty"`
+	MimeType string `json:"mimeType,omitempty"`
+}
 type SafetySettings struct {
 	Category  string `json:"category"`
 	Threshold string `json:"threshold"`
@@ -94,4 +99,30 @@ type OutputVertex struct {
 type Summary struct {
 	GroupID string `json:"group_id"`
 	Content string `json:"content"`
+}
+
+type EntitySentiment struct {
+	ID          int    `json:"id"`
+	EntityID    int    `json:"entity_id"`
+	Name        string `json:"name"`
+	Category    string `json:"category"`
+	Sentiment   string `json:"sentiment"`
+	IsMentioned bool   `json:"is_mentioned"`
+}
+
+type ScannedText struct {
+	ID             string         `json:"id"`
+	Title          string         `json:"title"`
+	Content        string         `json:"content"`
+	CropCoordinate CropCoordinate `json:"crop_coordinate"`
+}
+type CropCoordinate struct {
+	X1 int `json:"x1"`
+	X2 int `json:"x2"`
+	Y1 int `json:"y1"`
+	Y2 int `json:"y2"`
+}
+
+func (c *CropCoordinate) IsValid() bool {
+	return c.X1 >= 0 && c.X2 >= 0 && c.Y1 >= 0 && c.Y2 >= 0
 }
