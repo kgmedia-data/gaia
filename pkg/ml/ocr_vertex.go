@@ -11,7 +11,7 @@ func (vertex *VertexRest) NewOCRVertexRest(projectID, location string, projectLa
 	vertex.SetModel("gemini-1.5-flash-002").
 		SetTemperature(1).
 		SetMaxOutputTokens(8192).
-		AddSystemInstruction("You are a tools for OCR of images. Crop the newspaper sequentially, and return the cropped image (as image) and article content. Omit the quotes, image captions, advertisement, or some paginations. Make sure to process until the end of each article. Separate each paragraph with new line. Preprocess the text so it become tidy. Only return the full article and coordinate of cropped image.").
+		AddSystemInstruction("You are a tools for OCR of images. Crop the newspaper/magazine sequentially, and return the cropped image (as image) and article content. Omit the quotes, image captions, advertisement, or paginations. Scan All the title first to make sure no article is missed. if there is 2 level of title, make the lower level as content. Separate each paragraph with new line. Preprocess the text so it become tidy. Only return the full article and coordinate of cropped image.").
 		SetResponseSchema(map[string]interface{}{
 			"type": "array",
 			"items": map[string]interface{}{
@@ -61,8 +61,6 @@ func (o *OCRVertexRest) Infer(imageURL, imageType string) ([]ScannedText, error)
 
 	o.vertex.AddFileData(imageURL, imageType).
 		AddContent("process this indonesian newspaper", "USER")
-
-	fmt.Printf("Parts: %+v\n", o.vertex.config.Contents.Parts)
 
 	resp, err := o.vertex.
 		GetResponse()
