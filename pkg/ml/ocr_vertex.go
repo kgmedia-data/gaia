@@ -11,7 +11,7 @@ func (vertex *VertexRest) NewOCRVertexRest(projectID, location string, projectLa
 	vertex.SetModel("gemini-1.5-flash-002").
 		SetTemperature(1).
 		SetMaxOutputTokens(8192).
-		AddSystemInstruction("You are a tools for OCR of images. Crop the newspaper/magazine sequentially, and return the cropped image (as image) and article content. Omit the quotes, image captions, advertisement, or paginations. Scan All the title first to make sure no article is missed. if there is 2 level of title, make the lower level as content. Separate each paragraph with new line. Preprocess the text so it become tidy. Only return the full article and coordinate of cropped image.").
+		AddSystemInstruction("You are a tools for OCR of images. Crop the newspaper/magazine sequentially.").
 		SetResponseSchema(map[string]interface{}{
 			"type": "array",
 			"items": map[string]interface{}{
@@ -26,25 +26,8 @@ func (vertex *VertexRest) NewOCRVertexRest(projectID, location string, projectLa
 					"content": map[string]interface{}{
 						"type": "string",
 					},
-					"crop_coordinate": map[string]interface{}{
-						"type": "OBJECT",
-						"properties": map[string]interface{}{
-							"x1": map[string]interface{}{
-								"type": "integer",
-							},
-							"x2": map[string]interface{}{
-								"type": "integer",
-							},
-							"y1": map[string]interface{}{
-								"type": "integer",
-							},
-							"y2": map[string]interface{}{
-								"type": "integer",
-							},
-						},
-					},
 				},
-				"required": []string{"id", "content", "title", "crop_coordinate"},
+				"required": []string{"id", "content", "title"},
 			},
 		}).
 		AddLabel("project", projectLabel.ProjectName).
@@ -60,7 +43,7 @@ func (o OCRVertexRest) error(err error, method string, params ...interface{}) er
 func (o *OCRVertexRest) Infer(imageURL, imageType string) ([]ScannedText, error) {
 
 	o.vertex.AddFileData(imageURL, imageType).
-		AddContent("process this indonesian newspaper", "USER")
+		AddContent("Process this indonesian newspaper/magazine article. Omit the quotes (repeated someone's saying written in a bigger font), image captions, advertisements, or non article text. Take the whole article content. If the title same, merge the article. Separate each paragraph with new line. Preprocess the text so it become tidy, fix the typo if any.", "USER")
 
 	resp, err := o.vertex.
 		GetResponse()

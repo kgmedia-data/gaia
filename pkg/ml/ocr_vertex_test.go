@@ -22,9 +22,9 @@ func TestInferOCRRestVertex(t *testing.T) {
 
 	ocr, err := vertex.NewOCRVertexRest(projectID, location, projectLabel)
 	assert.NoError(t, err)
-	fmt.Printf("model vertex config: %+v\n", ocr.vertex.config)
+	// fmt.Printf("model vertex config: %+v\n\n", ocr.vertex.config)
 
-	resp, err := ocr.Infer("gs://kgdata-aiml-medea/printed_paper/publisher=jpmetropolitan/dt=2024-06-01/pages/02.jpg", "image/jpeg")
+	resp, err := ocr.Infer("gs://kgdata-aiml-medea/printed_paper/publisher=pos-belitung/dt=2024-06-18/pages/01.jpg", "image/jpeg")
 	fmt.Printf("resp: %+v\n", resp)
 	assert.NoError(t, err)
 	// assert.Equal(t, 5, len(resp))
