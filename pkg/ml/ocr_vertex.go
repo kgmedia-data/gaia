@@ -43,7 +43,7 @@ func (o OCRVertexRest) error(err error, method string, params ...interface{}) er
 func (o *OCRVertexRest) Infer(imageURL, imageType string) ([]ScannedText, error) {
 
 	o.vertex.AddFileData(imageURL, imageType).
-		AddContent("Process this indonesian newspaper/magazine article. Omit the quotes (repeated someone's saying written in a bigger font), image captions, advertisements, or non article text. Take the whole article content. If the title same, merge the article. Separate each paragraph with new line. Preprocess the text so it become tidy, fix the typo if any.", "USER")
+		AddContent("Process this indonesian newspaper/magazine article. Keep the quotation marks, but omit the quotes (repeated someone's saying written in a bigger font), image captions, advertisements, or non article text. Take the article titles and contents from the whole page. The content should not contain the title. Separate each paragraph with new line. Preprocess the text so it become tidy, fix the typo if any.", "USER")
 
 	resp, err := o.vertex.
 		GetResponse()
