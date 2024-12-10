@@ -179,6 +179,11 @@ func (s *VertexRest) AddSystemInstruction(instruction string) *VertexRest {
 	return s
 }
 
+func (s *VertexRest) ResetContentsParts() *VertexRest {
+	s.config.Contents.Parts = []InstructionPart{}
+	return s
+}
+
 func (s *VertexRest) AddContent(prompt string, role string) *VertexRest {
 	role = strings.ToUpper(role)
 	if role != "USER" && role != "MODEL" {
