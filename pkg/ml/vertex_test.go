@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -111,4 +112,23 @@ func TestInferEntitySentimentVertex(t *testing.T) {
 	resp, err := model.Infer(text)
 	fmt.Println("resp", resp)
 	assert.NoError(t, err)
+}
+
+func TestRenewToken(t *testing.T) {
+	vertex, err := NewVertexRest()
+	vertex.tokenExpiration = time.Now().Add(1 * time.Second)
+	assert.NoError(t, err)
+
+	// sleep until expired
+	time.Sleep(2 * time.Second)
+	assert.True(t, time.Now().After(vertex.tokenExpiration))
+
+	tokenBefore := vertex.request.Header.Get("Authorization")
+
+	err = vertex.RenewToken()
+	assert.NoError(t, err)
+
+	tokenAfter := vertex.request.Header.Get("Authorization")
+	assert.NotEqual(t, tokenBefore, tokenAfter)
+	assert.True(t, time.Now().Before(vertex.tokenExpiration))
 }
