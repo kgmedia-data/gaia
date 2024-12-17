@@ -8,15 +8,17 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 	"golang.org/x/oauth2/google"
 )
 
 type VertexRest struct {
-	request  *resty.Request
-	config   VertexAIConfig
-	endpoint string
+	request         *resty.Request
+	config          VertexAIConfig
+	endpoint        string
+	tokenExpiration time.Time
 }
 
 func NewVertexRest() (*VertexRest, error) {
@@ -32,8 +34,9 @@ func NewVertexRest() (*VertexRest, error) {
 	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
 	return &VertexRest{
-		request: request,
-		config:  *GenerateVertexDefaultConfig(),
+		request:         request,
+		config:          *GenerateVertexDefaultConfig(),
+		tokenExpiration: time.Now().Add(1 * time.Hour),
 	}, nil
 }
 
@@ -107,12 +110,30 @@ func (s VertexRest) error(err error, method string, params ...interface{}) error
 	return fmt.Errorf("VertexRestModel.(%v)(%v) %w", method, params, err)
 }
 
+func (s *VertexRest) RenewToken() error {
+	newToken, err := getAccessToken()
+	if err != nil {
+		return s.error(err, "RenewToken")
+	}
+
+	s.request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", newToken))
+	s.tokenExpiration = time.Now().Add(1 * time.Hour)
+
+	return nil
+}
+
 func (s *VertexRest) GetResponse() (*resty.Response, error) {
+	if time.Now().After(s.tokenExpiration) {
+		if err := s.RenewToken(); err != nil {
+			return nil, s.error(err, "GetResponse")
+		}
+	}
+
 	resp, err := s.request.
 		SetBody(s.config).
 		Post(s.endpoint)
 	if err != nil {
-		return nil, s.error(err, "BatchSummarize", s.config)
+		return nil, s.error(err, "GetResponse", s.config)
 	}
 
 	if resp.StatusCode() != http.StatusOK {
