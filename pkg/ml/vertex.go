@@ -137,7 +137,7 @@ func (s *VertexRest) GetResponse() (*resty.Response, error) {
 	}
 
 	if resp.StatusCode() != http.StatusOK {
-		return nil, fmt.Errorf("failed to get summary: status %s, response: %s", resp.Status(), resp.Body())
+		return nil, fmt.Errorf("status %s, response: %s", resp.Status(), resp.Body())
 	}
 	return resp, nil
 }
@@ -196,7 +196,12 @@ func (s *VertexRest) SetResponseSchema(schema map[string]interface{}) *VertexRes
 }
 
 func (s *VertexRest) AddSystemInstruction(instruction string) *VertexRest {
-	s.config.SystemInstruction.Parts = append(s.config.SystemInstruction.Parts, InstructionPart{Text: instruction})
+	s.config.SystemInstruction.Parts = append(s.config.SystemInstruction.Parts, InstructionPart{Text: &instruction})
+	return s
+}
+
+func (s *VertexRest) ResetContentsParts() *VertexRest {
+	s.config.Contents.Parts = []InstructionPart{}
 	return s
 }
 
@@ -206,7 +211,7 @@ func (s *VertexRest) AddContent(prompt string, role string) *VertexRest {
 		return s
 	}
 	s.config.Contents.Role = role
-	s.config.Contents.Parts = append(s.config.Contents.Parts, InstructionPart{Text: prompt})
+	s.config.Contents.Parts = append(s.config.Contents.Parts, InstructionPart{Text: &prompt})
 	return s
 }
 
@@ -216,7 +221,17 @@ func (s *VertexRest) SetContent(prompt, role string) *VertexRest {
 		return s
 	}
 	s.config.Contents.Role = role
-	s.config.Contents.Parts = []InstructionPart{{Text: prompt}}
+	s.config.Contents.Parts = []InstructionPart{{Text: &prompt}}
+	return s
+}
+
+func (s *VertexRest) AddFileData(fileURI, mimeType string) *VertexRest {
+	s.config.Contents.Parts = append(s.config.Contents.Parts, InstructionPart{
+		FileData: &FileData{
+			FileUri:  fileURI,
+			MimeType: mimeType,
+		},
+	})
 	return s
 }
 
