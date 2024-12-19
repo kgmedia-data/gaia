@@ -14,8 +14,12 @@ type CronHandler struct {
 	gocron *gocron.Scheduler
 }
 
-func NewCronHandler(cron string, job IJob) (*CronHandler, error) {
-	gocron := gocron.NewScheduler(time.UTC)
+func NewCronHandler(cron string, location string, job IJob) (*CronHandler, error) {
+	local, err := time.LoadLocation(location)
+	if err != nil {
+		local = time.UTC
+	}
+	gocron := gocron.NewScheduler(local)
 	return &CronHandler{
 		cron:   cron,
 		job:    job,
