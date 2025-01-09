@@ -126,3 +126,11 @@ type CropCoordinate struct {
 func (c *CropCoordinate) IsValid() bool {
 	return c.X1 >= 0 && c.X2 >= 0 && c.Y1 >= 0 && c.Y2 >= 0
 }
+
+type Spokesperson struct {
+	ID         string   `json:"id"`
+	Name       string   `json:"name"`
+	JobTitle   string   `json:"job_title"`
+	Sentiment  string   `json:"sentiment"`
+	Statements []string `json:"statements"`
+}
