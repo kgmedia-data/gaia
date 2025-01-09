@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestInferOCRRestVertex(t *testing.T) {
+func TestInfer_OCRRestVertex(t *testing.T) {
 
 	projectID := "kgdata-aiml"
 	location := "asia-southeast1"
