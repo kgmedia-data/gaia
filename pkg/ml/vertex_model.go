@@ -110,6 +110,12 @@ type EntitySentiment struct {
 	IsMentioned bool   `json:"is_mentioned"`
 }
 
+type Sentiment struct {
+	ID        string `json:"id"`
+	Content   string `json:"content"`
+	Sentiment string `json:"sentiment"`
+}
+
 type ScannedText struct {
 	ID             string         `json:"id"`
 	Title          string         `json:"title"`
