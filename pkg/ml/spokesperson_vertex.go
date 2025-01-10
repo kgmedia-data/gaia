@@ -13,7 +13,7 @@ func (vertex *VertexRest) NewSpokespersonVertexRest(projectID, location string, 
 	vertex.SetModel("gemini-1.5-flash-002").
 		SetTemperature(1).
 		SetMaxOutputTokens(8192).
-		AddSystemInstruction("You are a tools for extracting spokesperson, it's quotes, and sentiment from news articles.").
+		AddSystemInstruction("You are a tools for extracting spokesperson, it's quotes, and sentiment from news articles. each quotes has its own sentiment.").
 		SetResponseSchema(map[string]interface{}{
 			"type": "array",
 			"items": map[string]interface{}{
@@ -30,12 +30,22 @@ func (vertex *VertexRest) NewSpokespersonVertexRest(projectID, location string, 
 					},
 					"sentiment": map[string]interface{}{
 						"type": "string",
-						"enum": []string{"positive", "negative", "neutral"},
+						"enum": []string{"positive", "negative", "neutral", "mixed"},
 					},
 					"statements": map[string]interface{}{
 						"type": "array",
 						"items": map[string]interface{}{
-							"type": "string",
+							"type": "object",
+							"properties": map[string]interface{}{
+								"quote": map[string]interface{}{
+									"type": "string",
+								},
+								"sentiment": map[string]interface{}{
+									"type": "string",
+									"enum": []string{"positive", "negative", "neutral"},
+								},
+							},
+							"required": []string{"quote", "sentiment"},
 						},
 					},
 				},
@@ -71,7 +81,7 @@ func (s *SpokespersonVertexRest) Infer(content string) ([]Spokesperson, error) {
 }
 
 func (s *SpokespersonVertexRest) InferBatch(content map[string]string) (map[string][]Spokesperson, error) {
-
+	s.vertex.ResetContentsParts()
 	for i, c := range content {
 		s.vertex.AddContent(fmt.Sprintf("ID %v: , Content: %v\n", i, c), "USER")
 	}
