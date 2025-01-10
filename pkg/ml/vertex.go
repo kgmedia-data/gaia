@@ -195,6 +195,10 @@ func (s *VertexRest) SetResponseSchema(schema map[string]interface{}) *VertexRes
 	return s
 }
 
+func (s *VertexRest) SetSystemInstruction(instruction string) *VertexRest {
+	s.config.SystemInstruction.Parts = []InstructionPart{{Text: &instruction}}
+	return s
+}
 func (s *VertexRest) AddSystemInstruction(instruction string) *VertexRest {
 	s.config.SystemInstruction.Parts = append(s.config.SystemInstruction.Parts, InstructionPart{Text: &instruction})
 	return s
