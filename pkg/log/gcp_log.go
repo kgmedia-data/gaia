@@ -1,14 +1,14 @@
 package log
 
 import (
-	"cloud.google.com/go/logging"
 	"context"
 	"fmt"
+	"reflect"
+
+	"cloud.google.com/go/logging"
 	"github.com/kgmedia-data/gaia/pkg/msg"
 	"github.com/kgmedia-data/gaia/pkg/pub"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/exp/slices"
-	"reflect"
 )
 
 type GCPProcessor struct {
@@ -98,8 +98,8 @@ func (h *GcpLogHook) Levels() []logrus.Level {
 
 func (h *GcpLogHook) Fire(entry *logrus.Entry) error {
 
-	level := logLevelMappings[entry.Level]
-	things := []logging.Severity{logging.Error, logging.Critical}
+	// level := logLevelMappings[entry.Level]
+	// things := []logging.Severity{logging.Error, logging.Critical}
 
 	attr := make(map[string]string)
 	attr["level"] = entry.Level.String()
@@ -118,7 +118,7 @@ func (h *GcpLogHook) Fire(entry *logrus.Entry) error {
 		insertIntoGCP = reflect.ValueOf(entry.Data["gcp"]).Bool()
 	}
 
-	if slices.Contains(things, level) || insertIntoGCP {
+	if insertIntoGCP {
 		err := h.pub.Publish(msg.Message[string]{Data: entry.Message, Attribute: attr})
 		if err != nil {
 			return h.error(err, "Hook Fire")
