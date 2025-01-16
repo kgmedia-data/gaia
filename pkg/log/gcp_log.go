@@ -4,7 +4,8 @@ import (
 	"context"
 	"fmt"
 	"reflect"
-	"slices"
+
+	"golang.org/x/exp/slices"
 
 	"cloud.google.com/go/logging"
 	"github.com/kgmedia-data/gaia/pkg/msg"
