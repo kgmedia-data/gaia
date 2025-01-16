@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"slices"
 
 	"cloud.google.com/go/logging"
 	"github.com/kgmedia-data/gaia/pkg/msg"
@@ -98,8 +99,8 @@ func (h *GcpLogHook) Levels() []logrus.Level {
 
 func (h *GcpLogHook) Fire(entry *logrus.Entry) error {
 
-	// level := logLevelMappings[entry.Level]
-	// things := []logging.Severity{logging.Error, logging.Critical}
+	level := logLevelMappings[entry.Level]
+	things := []logging.Severity{logging.Critical}
 
 	attr := make(map[string]string)
 	attr["level"] = entry.Level.String()
@@ -118,7 +119,7 @@ func (h *GcpLogHook) Fire(entry *logrus.Entry) error {
 		insertIntoGCP = reflect.ValueOf(entry.Data["gcp"]).Bool()
 	}
 
-	if insertIntoGCP {
+	if slices.Contains(things, level) || insertIntoGCP {
 		err := h.pub.Publish(msg.Message[string]{Data: entry.Message, Attribute: attr})
 		if err != nil {
 			return h.error(err, "Hook Fire")
