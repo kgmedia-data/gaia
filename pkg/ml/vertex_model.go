@@ -110,6 +110,12 @@ type EntitySentiment struct {
 	IsMentioned bool   `json:"is_mentioned"`
 }
 
+type Sentiment struct {
+	ID        string `json:"id"`
+	Content   string `json:"content"`
+	Sentiment string `json:"sentiment"`
+}
+
 type ScannedText struct {
 	ID             string         `json:"id"`
 	Title          string         `json:"title"`
@@ -128,9 +134,14 @@ func (c *CropCoordinate) IsValid() bool {
 }
 
 type Spokesperson struct {
-	ID         string   `json:"id"`
-	Name       string   `json:"name"`
-	JobTitle   string   `json:"job_title"`
-	Sentiment  string   `json:"sentiment"`
-	Statements []string `json:"statements"`
+	ID         string      `json:"id"`
+	Name       string      `json:"name"`
+	JobTitle   string      `json:"job_title"`
+	Sentiment  string      `json:"sentiment"`
+	Statements []Statement `json:"statements"`
+}
+
+type Statement struct {
+	Quote     string `json:"quote"`
+	Sentiment string `json:"sentiment"`
 }

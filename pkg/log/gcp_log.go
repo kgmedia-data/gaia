@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"reflect"
 
+	"golang.org/x/exp/slices"
+
 	"cloud.google.com/go/logging"
 	"github.com/kgmedia-data/gaia/pkg/msg"
 	"github.com/kgmedia-data/gaia/pkg/pub"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/exp/slices"
 )
 
 type GCPProcessor struct {
