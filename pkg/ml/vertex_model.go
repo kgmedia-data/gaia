@@ -102,8 +102,8 @@ type Summary struct {
 }
 
 type EntitySentiment struct {
-	ID          int    `json:"id"`
-	EntityID    int    `json:"entity_id"`
+	ID          string `json:"id"`
+	EntityID    string `json:"entity_id"`
 	Name        string `json:"name"`
 	Category    string `json:"category"`
 	Sentiment   string `json:"sentiment"`
