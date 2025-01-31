@@ -20,7 +20,7 @@ func (vertex *VertexRest) NewEntitySentimentVertexRest(projectID, location strin
 				"type": "object",
 				"properties": map[string]interface{}{
 					"entity_id": map[string]interface{}{
-						"type": "integer",
+						"type": "string",
 					},
 					"sentiment": map[string]interface{}{
 						"type": "string",
