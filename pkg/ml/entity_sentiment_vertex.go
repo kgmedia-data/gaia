@@ -11,9 +11,19 @@ type EntitySentimentVertex struct {
 func (vertex *VertexRest) NewEntitySentimentVertexRest(projectID, location string, projectLabel ProjectLabel) (*EntitySentimentVertex, error) {
 
 	vertex.SetModel("gemini-1.5-flash-002").
-		SetTemperature(1).
+		SetTemperature(1.2).
 		SetMaxOutputTokens(8192).
-		AddSystemInstruction("You are an entity-based sentiment analysis model, which will be given input of Indonesian language news article, and a list of entity keywords for matching the sentiment. input will be like this: text: x. entity: y,z. 'name' is entity name. only extract the entities from input. sentiment is either positive, negative, or neutral. is_mentioned is true if the name is written in the text (such as name='shopee', if text contains 'shopi' or 'shope', return true) or any keywords that is relevant is mentioned in the text (such as name='toyota', if text contains 'fortuner', return true), else false.").
+		AddSystemInstruction(`You are an entity-based sentiment analysis model, which will be given input of Indonesian language news articles and a list of entity name and keywords for matching the sentiment. Your task is to analyze what is the citizen sentiment towards the entity name within the text from the perspective of the entity keywords, or the things, or events that is related to it. If the entity name is doing achievement or going to the right direction, or suggestion, give positive and vice versa.
+
+		Give weighting more into the positive sentiments. Don't classify as negative unless you're sure. Don't easily classify as neutral. If the entity is shown taking corrective actions, enforcing rules, or handling issues transparently, then sentiment should be neutral or positive, even if the article contains some negative words. 
+
+
+		For example:
+		If a police institution is investigating an officer, sentiment should be neutral or positive because the institution is taking action.
+		If a company is addressing customer complaints or launching an improvement, sentiment should be neutral or positive.
+		
+		is_mentioned is true if the name is written in the text (such as name='shopee', if text contains 'shopi' or 'shope', return true) or any keywords that is relevant is mentioned in the text (such as name='toyota', if text contains 'fortuner', return true), else false.
+`).
 		SetResponseSchema(map[string]interface{}{
 			"type": "array",
 			"items": map[string]interface{}{
@@ -24,6 +34,7 @@ func (vertex *VertexRest) NewEntitySentimentVertexRest(projectID, location strin
 					},
 					"sentiment": map[string]interface{}{
 						"type": "string",
+						"enum": []string{"positive", "negative", "neutral"},
 					},
 					"is_mentioned": map[string]interface{}{
 						"type": "boolean",

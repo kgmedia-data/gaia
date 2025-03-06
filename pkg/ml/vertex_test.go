@@ -105,9 +105,25 @@ func TestInferEntitySentimentVertex(t *testing.T) {
 	assert.NoError(t, err)
 
 	text := `extract entity-based sentiment from this texts
-			: text-1:Yg mnyingkirkan tiktok bukan jokowi..tapi para pdagang kaki lima dan toko toko kecil yh protes... saya juga lihat di shopee yg berjualan di itu jutaan...bro...knpa lagi shope yg di salahkan.... klo belanja di tiktok banyak yg ketipu....ga sesuai pesanan
-			entity-1: Shopee, entityID-1: 1
-			entity-2: Tiktok, entityID-2: 2
+			: text-1: Kasus Pemakaian Narkoba naik 10%% di Indonesia. 
+
+			entity-keywords-1: Paminal, entityID-1: 1, entity-name: kepolisian
+			entity-keywords-2: Polisi, entityID-2: 2, entity-name: kepolisian
+			entity-keywords-3: Pagar Laut, entityID-3: 3, entity-name: kepolisian
+			entity-keywords-4: Kepolisian Republik Indonesia (Polri), entityID-4: 4, entity-name: kepolisian
+			entity-keywords-5: #kasuspolisi, entityID-5: 5, entity-name: kepolisian
+			entity-keywords-6: #polisiviral, entityID-6: 6, entity-name: kepolisian
+			entity-keywords-7: Parcok, entityID-7: 7, entity-name: kepolisian
+			entity-keywords-8: Partai Cokelat, entityID-8: 8, entity-name: kepolisian
+			entity-keywords-9: polisi, entityID-9: 9, entity-name: kepolisian
+			entity-keywords-10: polisi tembak sopir mobil, entityID-10: 10, entity-name: kepolisian
+			entity-keywords-11: Maut Di Ujung Pistol Sang Oknum Brigpol, entityID-11: 11, entity-name: kepolisian
+			entity-keywords-12: Pembunuhan Sadis Oknum Polisi, entityID-12: 12, entity-name: kepolisian
+			entity-keywords-13: #parcok, entityID-13: 13, entity-name: kepolisian
+			entity-keywords-14: #PolisiJahat, entityID-14: 14, entity-name: kepolisian
+			entity-keywords-15: #SeragamCokelat, entityID-15: 15, entity-name: kepolisian
+			entity-keywords-16: Seragam Cokelat, entityID-16: 16, entity-name: kepolisian
+			entity-keywords-17: #ReformasiPOLRI, entityID-17: 17, entity-name: kepolisian
 	`
 	resp, err := model.Infer(text)
 	fmt.Println("resp", resp)
