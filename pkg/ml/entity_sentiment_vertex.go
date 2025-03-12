@@ -60,20 +60,20 @@ func (s EntitySentimentVertex) error(err error, method string, params ...interfa
 	return fmt.Errorf("SentimentVertexRest.(%v)(%v) %w", method, params, err)
 }
 
-func (s *EntitySentimentVertex) Infer(contents string) ([]EntitySentiment, error) {
+func (s *EntitySentimentVertex) Infer(contents string) ([]EntitySentiment, OutputVertex, error) {
 
 	s.vertex.SetContent(contents, "USER")
 
 	resp, err := s.vertex.GetResponse()
 	if err != nil {
-		return nil, s.error(err, "Infer - GetResponse")
+		return nil, OutputVertex{}, s.error(err, "Infer - GetResponse")
 	}
 
-	result := []EntitySentiment{}
-	err = ParseSingleResponseVertex(resp, &result)
+	result, outputVertex := []EntitySentiment{}, OutputVertex{}
+	err = ParseSingleResponseVertex(resp, &result, &outputVertex)
 	if err != nil {
-		return nil, s.error(err, "Infer - ParseSingleResponseVertex")
+		return nil, OutputVertex{}, s.error(err, "Infer - ParseSingleResponseVertex")
 	}
 
-	return result, nil
+	return result, outputVertex, nil
 }

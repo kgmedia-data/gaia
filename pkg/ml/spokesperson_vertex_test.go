@@ -25,7 +25,7 @@ func TestInfer_SpokespersonRestVertex(t *testing.T) {
 	assert.NoError(t, err)
 	// fmt.Printf("model vertex config: %+v\n\n", spokesperson.vertex.config)
 
-	resp, err := spokesperson.Infer(`<p><strong><!--img.1--></strong></p>
+	resp, output, err := spokesperson.Infer(`<p><strong><!--img.1--></strong></p>
 	<p><strong>SEMARANG, KOMPAS.com -</strong> Gelombang protes kaum buruh di Jawa Tengah semakin membesar terhadap penolakan Program Tabungan Perumahan Rakyat (Tapera).</p>
 	<p>Ratusan buruh di Kota Semarang berunjukrasa menolak program itu di depan Kantor Gubernur Jateng, Kamis (6/6/2024).</p>
 	<p>Tak hanya aksi demo, Kepala Dinas Tenaga Kerja dan Transmigrasi (Disnakertrans) Jateng Ahmad Aziz mengatakan, sejak kebijakan itu disampaikan oleh pemerintah pusat, banyak kalangan buruh dan pengusaha mendatangi Kantor Dinas Tenaga Kerja di kabupaten/kota.</p>
@@ -48,6 +48,7 @@ func TestInfer_SpokespersonRestVertex(t *testing.T) {
 	<p>"Setelah kita iuran (sampai pensiun) jatuhnya adalah Rp 48 juta. Logikannya ketika kita nabung, ketika kita masa-masa pensiun (di usia) 58 tahun, hanya mendapat Rp 48 juta, tidak masuk logika," tutur Aulia ditemui di sela aksi.</p>`)
 	jsonBytes, err := json.MarshalIndent(resp, "", "  ")
 	fmt.Printf("resp: %s\n", string(jsonBytes))
+	fmt.Printf("output: %+v\n", output)
 	assert.NoError(t, err)
 	// assert.Equal(t, 5, len(resp))
 }
@@ -97,10 +98,11 @@ func TestInferBatch_SpokespersonRestVertex(t *testing.T) {
 
 	“Tentunya apa yang kita raih ini adalah hasil dari kerja semua pihak, termasuk masyarakat. Karena itu, saya sampaikan terima kasih atas komitmen menjaga nilai toleransi dan keberagaman. Kedepan semoga Kota Bekasi semakin maju dan bahagia warganya. Kepada Front Pemuda Muslim Maluku, semoga semakin maju dan tambah bermanfaat, tetap menjaga Persatuan dan Kesatuan Bangsa, sehingga Kehidupan Toleransi dan hidup dalam Kedamaian akan tetap dijaga dalam interaksi sosial Kemasyarakatan,” pungkas Tri Adhianto.`
 
-	resp, err := spokesperson.InferBatch(texts)
+	resp, output, err := spokesperson.InferBatch(texts)
 	assert.NoError(t, err)
 	jsonBytes, err := json.MarshalIndent(resp, "", "  ")
 	fmt.Printf("resp: %s\n", string(jsonBytes))
+	fmt.Printf("output: %+v\n", output)
 	assert.NoError(t, err)
 	// assert.Equal(t, 5, len(resp))
 }

@@ -40,7 +40,7 @@ func (o OCRVertexRest) error(err error, method string, params ...interface{}) er
 	return fmt.Errorf("OCRVertexRest.(%v)(%v) %w", method, params, err)
 }
 
-func (o *OCRVertexRest) Infer(imageURL, imageType string) ([]ScannedText, error) {
+func (o *OCRVertexRest) Infer(imageURL, imageType string) ([]ScannedText, OutputVertex, error) {
 
 	o.vertex.ResetContentsParts().
 		AddFileData(imageURL, imageType).
@@ -50,12 +50,12 @@ func (o *OCRVertexRest) Infer(imageURL, imageType string) ([]ScannedText, error)
 		GetResponse()
 
 	if err != nil {
-		return nil, o.error(err, "Infer")
+		return nil, OutputVertex{}, o.error(err, "Infer")
 	}
-	result := []ScannedText{}
-	err = ParseSingleResponseVertex(resp, &result)
+	result, outputVertex := []ScannedText{}, OutputVertex{}
+	err = ParseSingleResponseVertex(resp, &result, &outputVertex)
 	if err != nil {
-		return nil, o.error(err, "Infer")
+		return nil, OutputVertex{}, o.error(err, "Infer")
 	}
-	return result, nil
+	return result, outputVertex, nil
 }

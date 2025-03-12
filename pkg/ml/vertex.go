@@ -152,8 +152,8 @@ func (s *VertexRest) ParseResponse(resp *resty.Response) (OutputVertex, error) {
 	return result, nil
 }
 
-func ParseSingleResponseVertex[T any](resp *resty.Response, result *T) error {
-	outputVertex := OutputVertex{}
+func ParseSingleResponseVertex[T any](resp *resty.Response, result *T, outputVertex *OutputVertex) error {
+
 	if err := json.Unmarshal(resp.Body(), &outputVertex); err != nil {
 		return fmt.Errorf("ParseSingleResponse - resp.Body(): %w (%v)", err, resp.Body())
 	}
