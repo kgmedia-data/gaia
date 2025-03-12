@@ -41,40 +41,40 @@ func (s SummaryVertexRest) error(err error, method string, params ...interface{}
 	return fmt.Errorf("SummarizeVertexRest.(%v)(%v) %w", method, params, err)
 }
 
-func (s *SummaryVertexRest) BatchSummarize(content string) ([]Summary, error) {
+func (s *SummaryVertexRest) BatchSummarize(content string) ([]Summary, OutputVertex, error) {
 	s.vertex.SetContent(content, "USER")
 
 	resp, err := s.vertex.GetResponse()
 	if err != nil {
-		return nil, s.error(err, "BatchSummarize")
+		return nil, OutputVertex{}, s.error(err, "BatchSummarize")
 	}
 
-	result := []Summary{}
-	err = ParseSingleResponseVertex(resp, &result)
+	result, outputVertex := []Summary{}, OutputVertex{}
+	err = ParseSingleResponseVertex(resp, &result, &outputVertex)
 	if err != nil {
-		return nil, s.error(err, "BatchSummarize")
+		return nil, OutputVertex{}, s.error(err, "BatchSummarize")
 	}
 
-	return result, nil
+	return result, outputVertex, nil
 }
 
-func (s *SummaryVertexRest) ProcessAndBatchSummarize(language string, minSentences, maxSentences int, input []Summary) ([]Summary, error) {
+func (s *SummaryVertexRest) ProcessAndBatchSummarize(language string, minSentences, maxSentences int, input []Summary) ([]Summary, OutputVertex, error) {
 
 	contents_text := s.generateContentsText(language, minSentences, maxSentences, input)
 	s.vertex.SetContent(contents_text, "USER")
 
 	resp, err := s.vertex.GetResponse()
 	if err != nil {
-		return nil, s.error(err, "BatchSummarize")
+		return nil, OutputVertex{}, s.error(err, "BatchSummarize")
 	}
 
-	result := []Summary{}
-	err = ParseSingleResponseVertex(resp, &result)
+	result, outputVertex := []Summary{}, OutputVertex{}
+	err = ParseSingleResponseVertex(resp, &result, &outputVertex)
 	if err != nil {
-		return nil, s.error(err, "BatchSummarize")
+		return nil, OutputVertex{}, s.error(err, "BatchSummarize")
 	}
 
-	return result, nil
+	return result, outputVertex, nil
 }
 
 func (s *SummaryVertexRest) generateContentsText(language string, minSentences, maxSentences int, input []Summary) (contents string) {

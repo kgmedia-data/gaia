@@ -90,23 +90,23 @@ func (s SpokespersonVertexRest) error(err error, method string, params ...interf
 	return fmt.Errorf("SpokespersonVertexRest.(%v)(%v) %w", method, params, err)
 }
 
-func (s *SpokespersonVertexRest) Infer(content string) ([]Spokesperson, error) {
+func (s *SpokespersonVertexRest) Infer(content string) ([]Spokesperson, OutputVertex, error) {
 
 	s.vertex.SetContent(content, "USER")
 
 	resp, err := s.vertex.GetResponse()
 	if err != nil {
-		return nil, s.error(err, "Infer - GetResponse")
+		return nil, OutputVertex{}, s.error(err, "Infer - GetResponse")
 	}
-	result := []Spokesperson{}
-	err = ParseSingleResponseVertex(resp, &result)
+	result, outputVertex := []Spokesperson{}, OutputVertex{}
+	err = ParseSingleResponseVertex(resp, &result, &outputVertex)
 	if err != nil {
-		return nil, s.error(err, "Infer")
+		return nil, OutputVertex{}, s.error(err, "Infer")
 	}
-	return result, nil
+	return result, outputVertex, nil
 }
 
-func (s *SpokespersonVertexRest) InferBatch(content map[string]string) (map[string][]Spokesperson, error) {
+func (s *SpokespersonVertexRest) InferBatch(content map[string]string) (map[string][]Spokesperson, OutputVertex, error) {
 	s.vertex.ResetContentsParts()
 	for i, c := range content {
 		s.vertex.AddContent(fmt.Sprintf("ID %v: , Content: %v\n", i, c), "USER")
@@ -114,11 +114,11 @@ func (s *SpokespersonVertexRest) InferBatch(content map[string]string) (map[stri
 
 	resp, err := s.vertex.GetResponse()
 	if err != nil {
-		return nil, s.error(err, "Infer - GetResponse")
+		return nil, OutputVertex{}, s.error(err, "Infer - GetResponse")
 	}
-	var spokespersons []Spokesperson
-	if err = ParseSingleResponseVertex(resp, &spokespersons); err != nil {
-		return nil, s.error(err, "InferBatch - ParseSingleResponseVertex")
+	spokespersons, outputVertex := []Spokesperson{}, OutputVertex{}
+	if err = ParseSingleResponseVertex(resp, &spokespersons, &outputVertex); err != nil {
+		return nil, OutputVertex{}, s.error(err, "InferBatch - ParseSingleResponseVertex")
 	}
 
 	finalResult := make(map[string][]Spokesperson, len(content))
@@ -126,5 +126,5 @@ func (s *SpokespersonVertexRest) InferBatch(content map[string]string) (map[stri
 		finalResult[spokesperson.ID] = append(finalResult[spokesperson.ID], spokesperson)
 	}
 
-	return finalResult, nil
+	return finalResult, outputVertex, nil
 }

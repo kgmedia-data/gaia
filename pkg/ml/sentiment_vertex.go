@@ -43,22 +43,22 @@ func (s SentimentVertex) error(err error, method string, params ...interface{}) 
 	return fmt.Errorf("SentimentVertexRest.(%v)(%v) %w", method, params, err)
 }
 
-func (s *SentimentVertex) Infer(contents string) ([]Sentiment, error) {
+func (s *SentimentVertex) Infer(contents string) ([]Sentiment, OutputVertex, error) {
 
 	s.Vertex.SetContent(contents, "USER")
 
 	resp, err := s.Vertex.GetResponse()
 	if err != nil {
-		return nil, s.error(err, "Infer - GetResponse")
+		return nil, OutputVertex{}, s.error(err, "Infer - GetResponse")
 	}
 
-	result := []Sentiment{}
-	err = ParseSingleResponseVertex(resp, &result)
+	result, outputVertex := []Sentiment{}, OutputVertex{}
+	err = ParseSingleResponseVertex(resp, &result, &outputVertex)
 	if err != nil {
-		return nil, s.error(err, "Infer - ParseSingleResponseVertex")
+		return nil, OutputVertex{}, s.error(err, "Infer - ParseSingleResponseVertex")
 	}
 
-	return result, nil
+	return result, outputVertex, nil
 }
 
 func (s *SentimentVertex) InferBatch(contents map[string]string) ([]Sentiment, error) {
@@ -71,8 +71,8 @@ func (s *SentimentVertex) InferBatch(contents map[string]string) ([]Sentiment, e
 		return nil, s.error(err, "Infer - GetResponse")
 	}
 
-	sentiments := []Sentiment{}
-	err = ParseSingleResponseVertex(resp, &sentiments)
+	sentiments, outputVertex := []Sentiment{}, OutputVertex{}
+	err = ParseSingleResponseVertex(resp, &sentiments, &outputVertex)
 	if err != nil {
 		return nil, s.error(err, "Infer - ParseSingleResponseVertex")
 	}
